@@ -3,6 +3,8 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :source-paths ["src/clj" "src/cljc"]
+
   :dependencies [[org.clojure/clojure "1.9.0-alpha11"]
                  [com.datomic/datomic-free "0.9.5394"]
                  [ring "1.5.0"]
