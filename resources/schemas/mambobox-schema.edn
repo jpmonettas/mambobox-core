@@ -1,0 +1,71 @@
+[;; Artists
+ {:db/id #db/id[:db.part/db]
+  :db/ident :artist/name
+  :db/unique :db.unique/identity
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "The artist/group name"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :artist/albums
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/doc "The artist/group albums"
+  :db.install/_attribute :db.part/db}
+
+
+ ;; Albums
+ {:db/id #db/id[:db.part/db]
+  :db/ident :album/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "The album name"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :album/songs
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/doc "The album songs"
+  :db.install/_attribute :db.part/db}
+ 
+ ;; Songs
+ {:db/id #db/id[:db.part/db]
+  :db/ident :song/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "A song name"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :song/duration
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "Song duration in seconds"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :song/tags
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "Song tags"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :song/user
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "The user who uploaded the song"
+  :db.install/_attribute :db.part/db}
+
+ ;; Users
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/fullname
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "The user full name"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/email
+  :db/unique :db.unique/identity
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "The user email"
+  :db.install/_attribute :db.part/db}
+ ]
