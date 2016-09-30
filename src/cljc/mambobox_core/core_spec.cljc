@@ -19,3 +19,14 @@
 
 
 
+;;;;;;;;;;;;;
+;; Devices ;;
+;;;;;;;;;;;;;
+
+(s/def :mb.device/uniq-id string?)
+(s/def :mb.device/locale string?)
+(s/def :mb.device/country string?)
+
+(s/def :mb/device (s/keys :req [:mb.device/uniq-id
+                                :mb.device/locale
+                                :mb.device/country]))

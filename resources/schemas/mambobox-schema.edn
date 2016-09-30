@@ -1,71 +1,177 @@
-[;; Artists
- {:db/id #db/id[:db.part/db]
-  :db/ident :artist/name
-  :db/unique :db.unique/identity
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/one
-  :db/doc "The artist/group name"
-  :db.install/_attribute :db.part/db}
- {:db/id #db/id[:db.part/db]
-  :db/ident :artist/albums
-  :db/valueType :db.type/ref
-  :db/cardinality :db.cardinality/many
-  :db/doc "The artist/group albums"
-  :db.install/_attribute :db.part/db}
+{:mambobox/schema
+ {:txes 
+  [;; Artists
+   [{:db/id #db/id[:db.part/db]
+     :db/ident :mb.artist/name
+     :db/unique :db.unique/identity
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The artist/group name"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.artist/albums
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :db/doc "The artist/group albums"
+     :db.install/_attribute :db.part/db}]
 
 
- ;; Albums
- {:db/id #db/id[:db.part/db]
-  :db/ident :album/name
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/one
-  :db/doc "The album name"
-  :db.install/_attribute :db.part/db}
- {:db/id #db/id[:db.part/db]
-  :db/ident :album/songs
-  :db/valueType :db.type/ref
-  :db/cardinality :db.cardinality/many
-  :db/doc "The album songs"
-  :db.install/_attribute :db.part/db}
+   ;; Albums
+   [{:db/id #db/id[:db.part/db]
+     :db/ident :mb.album/name
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The album name"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.album/songs
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :db/doc "The album songs"
+     :db.install/_attribute :db.part/db}]
+   
+   ;; Songs
+   [{:db/id #db/id[:db.part/db]
+     :db/ident :mb.song/name
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "A song name"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.song/duration
+     :db/valueType :db.type/long
+     :db/cardinality :db.cardinality/one
+     :db/doc "Song duration in seconds"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.song/tags
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/many
+     :db/doc "Song tags"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.song/user
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/doc "The user who uploaded the song"
+     :db.install/_attribute :db.part/db}]
+
+   ;; Users
+   [{:db/id #db/id[:db.part/db]
+     :db/ident :mb.user/fullname
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The user full name"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.user/email
+     :db/unique :db.unique/identity
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The user email"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.user/nick
+     :db/unique :db.unique/identity
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The user nickname"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.user/devices
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :db/doc "The user nickname"
+     :db.install/_attribute :db.part/db}]
+
+   ;; Devices
+   [{:db/id #db/id[:db.part/db]
+     :db/ident :mb.device/uniq-id
+     :db/valueType :db.type/string
+     :db/unique :db.unique/identity
+     :db/cardinality :db.cardinality/one
+     :db/doc "The device uniq id"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.device/locale
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The device locale"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.device/country
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "The device country"
+     :db.install/_attribute :db.part/db}]
+   ]}
+
  
- ;; Songs
- {:db/id #db/id[:db.part/db]
-  :db/ident :song/name
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/one
-  :db/doc "A song name"
-  :db.install/_attribute :db.part/db}
- {:db/id #db/id[:db.part/db]
-  :db/ident :song/duration
-  :db/valueType :db.type/long
-  :db/cardinality :db.cardinality/one
-  :db/doc "Song duration in seconds"
-  :db.install/_attribute :db.part/db}
- {:db/id #db/id[:db.part/db]
-  :db/ident :song/tags
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/many
-  :db/doc "Song tags"
-  :db.install/_attribute :db.part/db}
- {:db/id #db/id[:db.part/db]
-  :db/ident :song/user
-  :db/valueType :db.type/ref
-  :db/cardinality :db.cardinality/one
-  :db/doc "The user who uploaded the song"
-  :db.install/_attribute :db.part/db}
+ :mambobox/db-fns
+ {:txes [[;; Add an artist
+          {:db/id #db/id[:db.part/user]
+           :db/ident :artist/add
+           :db/fn #db/fn {:lang :clojure
+                          :params [db id artist-name]
+                          :code [{:db/id id
+                                  :mb.artist/name artist-name
+                                  :mb.artist/albums [{:db/id (d/tempid :db.part/user)
+                                                      :mb.album/name "unknown"}]}]}}
 
- ;; Users
- {:db/id #db/id[:db.part/db]
-  :db/ident :user/fullname
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/one
-  :db/doc "The user full name"
-  :db.install/_attribute :db.part/db}
- {:db/id #db/id[:db.part/db]
-  :db/ident :user/email
-  :db/unique :db.unique/identity
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/one
-  :db/doc "The user email"
-  :db.install/_attribute :db.part/db}
- ]
+          ;; Add an album
+          {:db/id #db/id[:db.part/user]
+           :db/ident :album/add
+           :db/fn #db/fn {:lang :clojure
+                          :params [db album-id artist-name album-name]
+                          :code (let [artist-e (d/entity db [:mb.artist/name artist-name])]
+                                  (if-not artist-e
+                                    (throw (Exception. (format "There is no artist called %s" artist-name)))
+                                    (if-not (empty? (->> (:mb.artist/albums artist-e)
+                                                         (map :mb.album/name)
+                                                         (filter (fn [an] (= an album-name)))))
+                                      (throw (Exception. (format "There is already an album called %s for artist %s" album-name artist-name)))
+                                      [[:db/add album-id :mb.album/name album-name]
+                                       [:db/add (:db/id artist-e) :mb.artist/albums album-id]])))}}
+
+          ;; Add a song
+          {:db/id #db/id[:db.part/user]
+           :db/ident :song/add
+           :db/fn #db/fn {:lang :clojure
+                          :params [db song-id song-name duration user-email album-name artist-name]
+                          :code (let [album-entity-id (d/q '[:find ?alb .
+                                                             :in $ ?alb-name ?art-name
+                                                             :where
+                                                             [?ar :mb.artist/name ?art-name]
+                                                             [?ar :mb.artist/albums ?alb]
+                                                             [?alb :mb.album/name ?alb-name]]
+                                                           db
+                                                           album-name
+                                                           artist-name)]
+                                  (if-not album-entity-id
+                                    (throw (Exception. (format "No album found for %s / %s " artist-name album-name)))
+                                    [{:db/id song-id
+                                      :mb.song/name song-name
+                                      :mb.song/duration duration
+                                      :mb.song/user [:user/email user-email]}
+                                     [:db/add album-entity-id :mb.album/songs song-id]]))}}
+
+          ;; Add a user
+          {:db/id #db/id[:db.part/user]
+           :db/ident :user/add
+           :db/fn #db/fn {:lang :clojure
+                          :params [db id email full-name nick]
+                          :code [{:db/id id
+                                  :mb.user/email email
+                                  :mb.user/fullname full-name
+                                  :mb.user/nick nick}]}}
+
+          ;; Add a device
+          {:db/id #db/id[:db.part/user]
+           :db/ident :device/add
+           :db/fn #db/fn {:lang :clojure
+                          :params [db id uniq-id locale country user-id]
+                          :code [{:db/id id
+                                  :mb.device/uniq-id uniq-id
+                                  :mb.device/country country
+                                  :mb.device/locale locale}
+                                 [:db/add user-id :mb.user/devices id]]}}]]}}
