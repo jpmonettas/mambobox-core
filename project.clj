@@ -22,12 +22,17 @@
                  
                  ;; reloaded workflow
                  [org.danielsz/system "0.3.2-SNAPSHOT"]
-                 [io.rkn/conformity "0.4.0"]]
+
+                 ;; utilities
+                 [io.rkn/conformity "0.4.0"]
+                 [camel-snake-kebab "0.4.0"]
+                 [com.taoensso/timbre "4.8.0-alpha1"]
+                 [claudio "0.1.3"]]
 
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev-src"]
                    :env {:datomic-uri "datomic:free://localhost:4334/mambodb"
                          :http-port 8090
                          :repl-port 7744
-                         :public-files-folder "./resources/public"}}
+                         :public-files-folder "/home/jmonetta/music"}}
              :prod {}})

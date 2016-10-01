@@ -13,12 +13,15 @@
     (when user-id
      (d/touch (d/entity db user-id)))))
 
-(defn register-device-transaction [db #:mb.device{:keys [uniq-id country locale]}]
+(defn- register-device-transaction [db #:mb.device{:keys [uniq-id country locale]}]
   (if-let [user (device-user db uniq-id)]
     [[:device/add (d/tempid :db.part/user) uniq-id locale country (:db/id user)]]
     (let [tmp-user-id (d/tempid :db.part/user)]
       [[:device/add (d/tempid :db.part/user) uniq-id locale country tmp-user-id]
        [:db/add tmp-user-id :mb.user/nick (str "anonymous" (rand-int 1000))]])))
+
+
+
 
 (defn register-device [datomic-cmp device-info]
   (let [conn (:conn datomic-cmp)

@@ -30,3 +30,9 @@
 (s/def :mb/device (s/keys :req [:mb.device/uniq-id
                                 :mb.device/locale
                                 :mb.device/country]))
+
+;;;;;;;;;;;;;;;;
+;; Components ;;
+;;;;;;;;;;;;;;;;
+
+(s/def :mb/datomic-cmp map?)
