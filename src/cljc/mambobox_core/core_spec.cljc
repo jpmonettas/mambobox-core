@@ -1,21 +1,35 @@
 (ns mambobox-core.core-spec
   (:require [clojure.spec :as s]))
 
+(s/def :db/id any?)
 
-(s/def :mb.song/id any?)
+(s/def :mb.song/id :db/id)
 (s/def :mb.song/name string?)
-(s/def :mb.song/duration int?)
+(s/def :mb.song/file-id string?)
+(s/def :mb.song/year integer?)
 (s/def :mb.song/url string?)
 
-(s/def :mb.album/name string?)
-
-(s/def :mb.artist/name string?)
-
-(s/def :mb/song (s/keys :req [:mb.song/name
+(s/def :mb/song (s/keys :req [:mb.song/id
+                              :mb.song/name
                               :mb.song/duration
-                              :mb.artist/name
-                              :mb.album/name
-                              :mb.song/url])) 
+                              :mb/artist
+                              :mb/album
+                              :mb.song/url]))
+
+(s/def :mb.album/id :db/id)
+(s/def :mb.album/name string?)
+(s/def :mb.album/songs (s/coll-of :mb/song))
+(s/def :mb/album (s/keys :req [:mb.album/id
+                               :mb.album/name
+                               :mb.album/songs]))
+
+(s/def :mb.artist/id :db/id)
+(s/def :mb.artist/name string?)
+(s/def :mb.artist/albums (s/coll-of :mb/album))
+(s/def :mb/artist (s/keys :req [:mb.artist/id
+                                :mb.artist/name]))
+
+ 
 
 
 

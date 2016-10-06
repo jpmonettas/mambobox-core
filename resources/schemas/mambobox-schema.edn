@@ -38,10 +38,17 @@
      :db/doc "A song name"
      :db.install/_attribute :db.part/db}
     {:db/id #db/id[:db.part/db]
-     :db/ident :mb.song/duration
+     :db/ident :mb.song/file-id
+     :db/unique :db.unique/identity
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one
+     :db/doc "Mambobox file id of the song"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.song/year
      :db/valueType :db.type/long
      :db/cardinality :db.cardinality/one
-     :db/doc "Song duration in seconds"
+     :db/doc "The year of the song"
      :db.install/_attribute :db.part/db}
     {:db/id #db/id[:db.part/db]
      :db/ident :mb.song/tags
@@ -137,23 +144,18 @@
           {:db/id #db/id[:db.part/user]
            :db/ident :song/add
            :db/fn #db/fn {:lang :clojure
-                          :params [db song-id song-name duration user-email album-name artist-name]
-                          :code (let [album-entity-id (d/q '[:find ?alb .
-                                                             :in $ ?alb-name ?art-name
-                                                             :where
-                                                             [?ar :mb.artist/name ?art-name]
-                                                             [?ar :mb.artist/albums ?alb]
-                                                             [?alb :mb.album/name ?alb-name]]
-                                                           db
-                                                           album-name
-                                                           artist-name)]
-                                  (if-not album-entity-id
-                                    (throw (Exception. (format "No album found for %s / %s " artist-name album-name)))
+                          :params [db song-id song-file-id song-name song-year user-id album-id]
+                          :code (let [album (d/entity db album-id)]
+                                  (if (not-empty (filter (fn [s] (= song-name (:mb.song/name s)))
+                                                         (:mb.album/songs album)))
+                                    (throw (Exception. (format "Already a song called %s for album %s " song-name album-id)))
                                     [{:db/id song-id
                                       :mb.song/name song-name
-                                      :mb.song/duration duration
-                                      :mb.song/user [:user/email user-email]}
-                                     [:db/add album-entity-id :mb.album/songs song-id]]))}}
+                                      :mb.song/user user-id
+                                      :mb.song/file-id song-file-id
+                                      :mb.song/year song-year}
+                                     [:db/add album-id :mb.album/songs song-id]]
+                                    ))}}
 
           ;; Add a user
           {:db/id #db/id[:db.part/user]
@@ -170,8 +172,10 @@
            :db/ident :device/add
            :db/fn #db/fn {:lang :clojure
                           :params [db id uniq-id locale country user-id]
-                          :code [{:db/id id
-                                  :mb.device/uniq-id uniq-id
-                                  :mb.device/country country
-                                  :mb.device/locale locale}
-                                 [:db/add user-id :mb.user/devices id]]}}]]}}
+                          :code (if (d/entity db [:mb.device/uniq-id uniq-id])
+                                  (throw (Exception. (str "There is already a device identified by " uniq-id)))
+                                  [{:db/id id
+                                    :mb.device/uniq-id uniq-id
+                                    :mb.device/country country
+                                    :mb.device/locale locale}
+                                   [:db/add user-id :mb.user/devices id]])}}]]}}

@@ -19,4 +19,14 @@
                  (response/ok (core-users/register-device (:datomic-cmp req)
                                                           #:mb.device{:uniq-id uniq-id
                                                                       :locale locale
-                                                                      :country country})))))
+                                                                      :country country})))
+
+           (PUT "/nick" req
+                 :summary "Register a device"
+                 :responses {200 {:schema schema/Any :description "Nick updated"}}
+                 :body-params [device-uniq-id :- String
+                               new-nick :- String]
+                 (response/ok
+                  (core-users/update-user-nick (:datomic-cmp req)
+                                               device-uniq-id
+                                               new-nick)))))
