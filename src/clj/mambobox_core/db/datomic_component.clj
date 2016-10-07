@@ -34,8 +34,8 @@
                                           (:mb.artist/albums artist))))
         album-id (if album (:db/id album) (d/tempid :db.part/user))]
     (cond-> [[:song/add (d/tempid :db.part/user) song-file-id song-name song-year user-id album-id]]
-      (not artist) (conj [:artist/add artist-id :mb.artist/name song-artist-name])
-      (not album) (conj [:album/add album-id :mb.album/name song-album-name]))))
+      (not artist) (conj [:artist/add artist-id song-artist-name])
+      (not album) (conj [:album/add album-id artist-id song-album-name]))))
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/MusicPersistence

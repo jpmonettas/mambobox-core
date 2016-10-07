@@ -129,16 +129,19 @@
           {:db/id #db/id[:db.part/user]
            :db/ident :album/add
            :db/fn #db/fn {:lang :clojure
-                          :params [db album-id artist-name album-name]
-                          :code (let [artist-e (d/entity db [:mb.artist/name artist-name])]
-                                  (if-not artist-e
-                                    (throw (Exception. (format "There is no artist called %s" artist-name)))
-                                    (if-not (empty? (->> (:mb.artist/albums artist-e)
-                                                         (map :mb.album/name)
-                                                         (filter (fn [an] (= an album-name)))))
-                                      (throw (Exception. (format "There is already an album called %s for artist %s" album-name artist-name)))
-                                      [[:db/add album-id :mb.album/name album-name]
-                                       [:db/add (:db/id artist-e) :mb.artist/albums album-id]])))}}
+                          :params [db album-id artist-id album-name]
+                          :code (let [artist-album (ffirst (d/q '[:find ?album-id
+                                                                  :in $ ?artist-id ?album-name
+                                                                  :where
+                                                                  [?artist-id :mb.artist/albums ?album-id]
+                                                                  [?album-id :mb.album/name ?album-name]]
+                                                                db
+                                                                artist-id
+                                                                album-name))]
+                                  (if artist-album
+                                    (throw (Exception. (format "There is already an album called %s for artist %s" album-name artist-id)))
+                                    [[:db/add album-id :mb.album/name album-name]
+                                     [:db/add artist-id :mb.artist/albums album-id]]))}}
 
           ;; Add a song
           {:db/id #db/id[:db.part/user]
