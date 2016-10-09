@@ -7,9 +7,13 @@
             [compojure.api.sweet :refer [api defapi GET context]]
             [compojure.route :refer [files resources not-found]]
             [ring.middleware.cors :refer [wrap-cors]]
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [environ.core :refer [env]]
             [camel-snake-kebab.core :refer [->kebab-case ->camelCase]]
             [taoensso.timbre :as l]))
+
+(def ^:dynamic *request-device-uniq-id*)
 
 (defn generic-exception-handler [^Exception e data req]
   (response/internal-server-error {:message (.getMessage e)}))
@@ -21,6 +25,15 @@
     (let [injected-request (-> request
                                (assoc :datomic-cmp datomic-cmp))]
       (handler injected-request))))
+
+(defn wrap-device-id-mandatory [handler]
+  (fn [request]
+    (if (.startsWith (:uri request) "/swagger-ui")
+      (handler request)
+      (if-not (-> request :params :device-id)
+        (response/bad-request "You can't make a request without :device-id parameter")
+        (binding [*request-device-uniq-id* (-> request :params :device-id)]
+          (handler request))))))
 
 (defn key-json->clj [x]
   (keyword (->kebab-case x)))
@@ -34,8 +47,8 @@
     :format {:formats [:json]
              :params-opts {:json {:key-fn key-json->clj}}
              :response-opts {:json {:key-fn key-clj->json}}}
-    :swagger {:ui "/"
-              :spec "/swagger.json"
+    :swagger {:ui "/swagger-ui"
+              :spec "/swagger-ui/swagger.json"
               :data {:info {:title "Mambobox api"}}}}
 
    #'songs-routes
@@ -49,7 +62,10 @@
    (-> api-routes
        (wrap-cors :access-control-allow-origin [#".*"]
                     :access-control-allow-methods [:post :get :put :delete])
-       (wrap-components datomic-cmp))
+       (wrap-components datomic-cmp)
+       (wrap-device-id-mandatory)
+       (wrap-keyword-params)
+       (wrap-params))
 
    (not-found "Not Found")))
 

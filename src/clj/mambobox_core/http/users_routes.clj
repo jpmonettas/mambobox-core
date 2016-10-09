@@ -10,6 +10,8 @@
 (def users-routes
   (context "/user" []
            :tags ["Users"]
+           :query-params [device-id :- schema/Str]
+           
            (POST "/register-device" req
                  :summary "Register a device"
                  :responses {200 {:schema schema/Any :description "Device registered"}}
@@ -24,9 +26,9 @@
            (PUT "/nick" req
                  :summary "Register a device"
                  :responses {200 {:schema schema/Any :description "Nick updated"}}
-                 :body-params [device-uniq-id :- String
-                               new-nick :- String]
+                 :body-params [new-nick :- String
+                               user-id :- Number]
                  (response/ok
                   (core-users/update-user-nick (:datomic-cmp req)
-                                               device-uniq-id
+                                               user-id
                                                new-nick)))))

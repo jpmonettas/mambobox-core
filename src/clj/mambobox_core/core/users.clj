@@ -7,6 +7,5 @@
   ([datomic-cmp device-info user-id]
    (protos/add-device datomic-cmp device-info user-id)))
 
-(defn update-user-nick [datomic-cmp device-uniq-id new-nick]
-  (let [user (protos/get-user-by-device-uuid datomic-cmp device-uniq-id)]
-    (protos/update-user-nick datomic-cmp (:db/id user) new-nick)))
+(defn update-user-nick [datomic-cmp user-id new-nick]
+  (protos/update-user-nick datomic-cmp user-id new-nick))

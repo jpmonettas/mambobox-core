@@ -11,34 +11,37 @@
 (defn normalize-entity-name-string [name-str]
   (csk/->kebab-case name-str))
 
-(defn build-file-id [filename user-id]
-  (str user-id "_" filename))
+(defn build-file-id [filename]
+  (str (normalize-entity-name-string filename) "_" (rand-int 100)))
 
 (s/def ::tempfile #(instance? java.io.File %))
 (s/def ::filename string?)
+
 (s/fdef upload-song
         :args (s/cat :datomic-cmp :mb/datomic-cmp
-                     :device-id :mb.device/uniq-id
                      :file (s/keys :req-un [::tempfile ::filename])))
 
-;; {artist-name :artist
-;;  album-name :album
-;;  song-name :title
-;;  year :year}
 
-(defn upload-song [datomic-cmp device-uniq-id {:keys [tempfile filename]}]
-  (let [user (protos/get-user-by-device-uuid datomic-cmp device-uniq-id)
-        song-file-id (build-file-id filename (:db/id user))
-        song-dest-file (io/file (format "%s/%s" (env :public-files-folder) song-file-id))
-        id3-info (id3/read-tag tempfile)]
+(defn upload-song [datomic-cmp {:keys [tempfile filename]}]
+  (let [
+        [_ filebase extension] (re-matches #"(.+)\.(.*)" filename)
+        song-file-id (str (build-file-id filebase) "." extension)
+        song-dest-file (io/file (format "%s/%s" (env :public-files-folder) song-file-id))]
     (io/copy tempfile song-dest-file)
-    (protos/add-song datomic-cmp song-file-id id3-info (:db/id user))))
+    (protos/add-song datomic-cmp song-file-id (id3/read-tag song-dest-file))))
 
-#_(id3/read-tag (clojure.java.io/file "/home/jmonetta/music/aquel.mp3"))
-#_{:album "Que revienten los artistas",
-   :album-artist "La Tabaré",
-   :artist "La Tabaré",
-   :title "Aquel cuplé",
-   :track "1",
-   :track-total "13",
-   :year "2014"}
+
+(defn update-song-attributes [datomic-cmp song-id update-map]
+  (protos/update-song datomic-cmp song-id update-map))
+
+(defn user-favourites-songs [datomic-cmp device-id]
+  (let [user (protos/get-user-by-device-uuid datomic-cmp device-id)]
+    )
+  )
+
+(defn hot-songs [datomic-cmp]
+  
+  )
+
+(defn track-song-play [datomic-cmp song-id]
+  (protos/track-song-view datomic-cmp song-id))

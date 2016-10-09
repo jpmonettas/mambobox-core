@@ -16,25 +16,20 @@
                                      :mb.album/name "latin-vibe-album-1"
                                      :mb.album/songs [{:db/id (d/tempid :db.part/user)
                                                        :mb.song/name "l-a1-s1"
-                                                       :mb.song/file-id "l-a1-s1-f1"}]}]}
-                {:db/id (d/tempid :db.part/user)
-                 :mb.user/email "jp@mail.com"}]
+                                                       :mb.song/file-id "l-a1-s1-f1"}]}]}]
         {loaded-db :db-after} (d/with empty-db txdata)
-        user-id (:db/id (d/entity loaded-db [:mb.user/email "jp@mail.com"]))
         {db-after-s1 :db-after} (d/with loaded-db (add-song-transaction loaded-db
                                                                      "l-a1-s1-f2"
                                                                      {:artist "LatinVibe"
                                                                       :album "Latin VibeAlbum 1"
                                                                       :year 2010
-                                                                      :title "La llave"}
-                                                                     user-id))
+                                                                      :title "La llave"}))
         {db-after-s2 :db-after} (d/with db-after-s1 (add-song-transaction db-after-s1
                                                                           "gc-a1-s1-f1"
                                                                           {:artist "El gran combo de puerto rico"
                                                                            :album "GreatestHits"
                                                                            :year 2010
-                                                                           :title "Guaguanco del gran combo"}
-                                                                          user-id))
+                                                                           :title "Guaguanco del gran combo"}))
         added-song1-entity (d/entity db-after-s2 [:mb.song/file-id "l-a1-s1-f2"])
         auto-created-artist (d/entity db-after-s2 [:mb.artist/name "el-gran-combo-de-puerto-rico"])
         added-song2-entity (d/entity db-after-s2 [:mb.song/file-id "gc-a1-s1-f1"])]

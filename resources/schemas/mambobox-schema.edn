@@ -1,6 +1,14 @@
 {:mambobox/schema
  {:txes 
-  [;; Artists
+  [;; Reified txs
+   [{:db/id #db/id[:db.part/db]
+     :db/ident :mb.tx/user
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/doc "The user who is making this transaction"
+     :db.install/_attribute :db.part/db}]
+   
+   ;; Artists
    [{:db/id #db/id[:db.part/db]
      :db/ident :mb.artist/name
      :db/unique :db.unique/identity
@@ -51,16 +59,17 @@
      :db/doc "The year of the song"
      :db.install/_attribute :db.part/db}
     {:db/id #db/id[:db.part/db]
+     :db/ident :mb.song/plays-count
+     :db/noHistory true
+     :db/valueType :db.type/long
+     :db/cardinality :db.cardinality/one
+     :db/doc "The number of time a song has been played"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
      :db/ident :mb.song/tags
      :db/valueType :db.type/string
      :db/cardinality :db.cardinality/many
      :db/doc "Song tags"
-     :db.install/_attribute :db.part/db}
-    {:db/id #db/id[:db.part/db]
-     :db/ident :mb.song/user
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/doc "The user who uploaded the song"
      :db.install/_attribute :db.part/db}]
 
    ;; Users
@@ -147,18 +156,25 @@
           {:db/id #db/id[:db.part/user]
            :db/ident :song/add
            :db/fn #db/fn {:lang :clojure
-                          :params [db song-id song-file-id song-name song-year user-id album-id]
+                          :params [db song-id song-file-id song-name song-year album-id]
                           :code (let [album (d/entity db album-id)]
                                   (if (not-empty (filter (fn [s] (= song-name (:mb.song/name s)))
                                                          (:mb.album/songs album)))
                                     (throw (Exception. (format "Already a song called %s for album %s " song-name album-id)))
-                                    [{:db/id song-id
-                                      :mb.song/name song-name
-                                      :mb.song/user user-id
-                                      :mb.song/file-id song-file-id
-                                      :mb.song/year song-year}
-                                     [:db/add album-id :mb.album/songs song-id]]
-                                    ))}}
+                                    (cond-> [{:db/id song-id
+                                              :mb.song/name song-name 
+                                              :mb.song/file-id song-file-id
+                                              :mb.song/plays-count 0}
+                                             [:db/add album-id :mb.album/songs song-id]]
+                                      song-year (conj [:db/add song-id :mb.song/year song-year]))))}}
+
+          ;; Track a song view
+          {:db/id #db/id[:db.part/user]
+           :db/ident :song/track-play
+           :db/fn #db/fn {:lang :clojure
+                          :params [db song-id ]
+                          :code (let [song (d/entity db song-id)]
+                                  [[:db/add song-id :mb.song/plays-count (inc (:mb.song/plays-count song))]])}}
 
           ;; Add a user
           {:db/id #db/id[:db.part/user]
