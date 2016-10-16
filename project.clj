@@ -27,7 +27,8 @@
                  [io.rkn/conformity "0.4.0"]
                  [camel-snake-kebab "0.4.0"]
                  [com.taoensso/timbre "4.8.0-alpha1"]
-                 [claudio "0.1.3"]]
+                 [claudio "0.1.3"]
+                 [walmartlabs/datascope "0.1.1"]]
 
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev-src"]

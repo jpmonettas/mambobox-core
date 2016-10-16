@@ -37,16 +37,26 @@
                                             (Long/parseLong song-id))
                 (response/ok))
 
-           (PUT "/:song-id" [song-id :as req]
-                :summary "Update song-name song-artist song-album song-year "
-                :body-params [song-id :- schema/Num
-                              update-map :- {(schema/optional-key :song-name) schema/Str
-                                             (schema/optional-key :artist-name) schema/Str
-                                             (schema/optional-key :album-name) schema/Str
-                                             (schema/optional-key :song-year) schema/Int}]
-                (core-music/update-song-attributes (:datomic-cmp req)
-                                                   song-id
-                                                   update-map)
-                (response/ok))))
+           (PUT "/:song-id/artist" [song-id :as req]
+                :summary "Move song to artist with that name "
+                :body-params [new-artist-name schema/Str]
+                (response/ok
+                 (core-music/update-song-artist (:datomic-cmp req)
+                                                song-id
+                                                new-artist-name)))
+           (PUT "/:song-id/album" [song-id :as req]
+                :summary "Move song to album with that name in the same artist"
+                :body-params [new-album-name schema/Str]
+                (response/ok
+                 (core-music/update-song-album (:datomic-cmp req)
+                                                song-id
+                                                new-album-name)))
+           (PUT "/:song-id/name" [song-id :as req]
+                :summary "Update song name"
+                :body-params [new-song-name schema/Str]
+                (response/ok
+                 (core-music/update-song-name (:datomic-cmp req)
+                                                song-id
+                                                new-song-name)))))
 
 

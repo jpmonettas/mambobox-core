@@ -2,7 +2,9 @@
 
 (defprotocol MusicPersistence
   (add-song [_ song-file-id id3-info])
-  (update-song [_ song-id update-map])
+  (update-song-artist [_ song-id new-artist-name])
+  (update-song-album [_ song-id new-album-name])
+  (update-song-name [_ song-id new-song-name])
 
   (add-artist [_ artist-name])
   (get-artist-by-name [_ name])

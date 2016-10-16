@@ -31,8 +31,14 @@
     (protos/add-song datomic-cmp song-file-id (id3/read-tag song-dest-file))))
 
 
-(defn update-song-attributes [datomic-cmp song-id update-map]
-  (protos/update-song datomic-cmp song-id update-map))
+(defn update-song-artist [datomic-cmp song-id new-artist-name]
+  (protos/update-song-artist datomic-cmp song-id new-artist-name))
+
+(defn update-song-album [datomic-cmp song-id new-album-name]
+  (protos/update-song-album datomic-cmp song-id new-album-name))
+
+(defn update-song-name [datomic-cmp song-id new-song-name]
+  (protos/update-song-name datomic-cmp song-id new-song-name))
 
 (defn user-favourites-songs [datomic-cmp device-id]
   (let [user (protos/get-user-by-device-uuid datomic-cmp device-id)]

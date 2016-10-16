@@ -130,9 +130,7 @@
            :db/fn #db/fn {:lang :clojure
                           :params [db id artist-name]
                           :code [{:db/id id
-                                  :mb.artist/name artist-name
-                                  :mb.artist/albums [{:db/id (d/tempid :db.part/user)
-                                                      :mb.album/name "unknown"}]}]}}
+                                  :mb.artist/name artist-name}]}}
 
           ;; Add an album
           {:db/id #db/id[:db.part/user]

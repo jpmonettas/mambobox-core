@@ -45,9 +45,9 @@
 (comment
  @(d/transact (:conn (db))
               [{:db/id #db/id[:db.part/user]
-                :db/ident :song/track-play
-                :db/fn (d/function '{:lang :clojure
-                                     :params [db song-id ]
-                                     :code (let [song (d/entity db song-id)]
-                                             [[:db/add song-id :mb.song/plays-count (inc (:mb.song/plays-count song))]])})}])
+                :db/ident :artist/add
+                :db/fn  (d/function '{:lang :clojure
+                           :params [db id artist-name]
+                           :code [{:db/id id
+                                   :mb.artist/name artist-name}]})}])
  )

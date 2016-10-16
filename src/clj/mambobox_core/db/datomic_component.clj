@@ -33,11 +33,11 @@
 (defn new-mambobox-datomic-cmp [datomic-uri]
   (map->MamboboxDatomicComponent {:datomic-uri datomic-uri}))
 
-(defn add-song-transaction [db song-file-id id3-info]
-  (let [song-artist-name (normalize-entity-name-string (or (:artist id3-info) "unnamed artist"))
-        song-album-name (normalize-entity-name-string (or (:album id3-info) "unnamed album"))
-        song-name (normalize-entity-name-string (or (:title id3-info) "unnamed song"))
-        song-year (:year id3-info)
+(defn add-song-transaction [db song-file-id song-info]
+  (let [song-artist-name (normalize-entity-name-string (or (:artist song-info) "unknown"))
+        song-album-name (normalize-entity-name-string (or (:album song-info) "unknown"))
+        song-name (normalize-entity-name-string (or (:title song-info) "unknown"))
+        song-year (:year song-info)
         artist (d/entity db [:mb.artist/name song-artist-name])
         artist-id (if artist (:db/id artist) (d/tempid :db.part/user))
         album (when artist (first (filter #(= song-album-name (:mb.album/name %))
@@ -46,6 +46,62 @@
     (cond-> [[:song/add (d/tempid :db.part/user) song-file-id song-name song-year album-id]]
       (not artist) (conj [:artist/add artist-id song-artist-name])
       (not album) (conj [:album/add album-id artist-id song-album-name]))))
+
+(defn update-song-artist-transaction [db song-id new-artist-name]
+  (let [song (d/entity db song-id)
+        current-song-album (first (:mb.album/_songs song))]
+    
+    ;; let's see if there is already an artist with that name
+    (if-let [dest-artist-id (:db/id (d/entity db [:mb.artist/name (normalize-entity-name-string new-artist-name)]))]
+
+      ;; if the artist exist, does it has an album with that name?
+      (if-let [dest-album-id (ffirst (d/q '[:find ?dest-album-id
+                                           :in $ ?song-id ?dest-artist-id
+                                           :where
+                                           [?dest-artist-id :mb.artist/albums ?dest-album-id]
+                                           [?dest-album-id :mb.album/name ?dest-album-name]
+                                           [?song-album :mb.album/songs ?song-id]
+                                           [?song-album :mb.album/name ?song-album-name]
+                                           [(= ?song-album-name ?dest-album-name)]]
+                                         db song-id dest-artist-id))]
+        
+        ;; the artist already has an album with the name so just move the song there
+        [[:db/retract (:db/id current-song-album) :mb.album/songs song-id]
+         [:db/add dest-album-id :mb.album/songs song-id]]
+
+        (let [new-album-id (d/tempid :db.part/user)]
+          [[:album/add  new-album-id dest-artist-id (:mb.album/name current-song-album)]
+           [:db/retract (:db/id current-song-album) :mb.album/songs song-id]
+           [:db/add new-album-id :mb.album/songs song-id]]))
+      
+      ;; if not, we need to create an artist, album and move the song
+      (let [new-artist-id (d/tempid :db.part/user)
+            new-album-id (d/tempid :db.part/user)]
+        [[:artist/add new-artist-id new-artist-name]
+         [:album/add new-album-id new-artist-id (:mb.album/name current-song-album)]
+         [:db/retract (:db/id current-song-album) :mb.album/songs song-id]
+         [:db/add new-album-id :mb.album/songs song-id]]))))
+
+(defn update-song-album-transaction [db song-id new-album-name]
+  (let [current-song-album (-> (d/entity db song-id) :mb.album/_songs first)
+        current-song-artist (-> current-song-album :mb.artist/_albums first)
+        song-new-album (->> (:mb.artist/albums current-song-artist)
+                            (filter #(= (:mb.album/name %) (normalize-entity-name-string new-album-name)))
+                            first)]
+    (conj 
+     ;; if dest album already exist
+     (if song-new-album
+       ;; just add the song to it and remove it from prev album
+       [[:db/add (:db/id song-new-album) :mb.album/songs song-id]]
+
+       ;; if not, create the album and add the song to it
+       (let [new-album-id (d/tempid :db.part/user)]
+         [[:album/add new-album-id (:db/id current-song-artist) new-album-name]
+          [:db/add new-album-id :mb.album/songs song-id]]))
+
+     ;; always remove from previous album
+     [:db/retract (:db/id current-song-album) :mb.album/songs song-id])))
+
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/MusicPersistence
@@ -57,15 +113,24 @@
                                                                       id3-info))]
       (d/touch (d/entity db-after [:mb.song/file-id song-file-id]))))
 
-  (update-song [datomic-cmp song-id {:keys [song-name artist-name album-name song-year]}]
-    (let [song (d/entity (d/db (:conn datomic-cmp)) song-id)
-          tx-data (cond-> []
-                    song-name (conj [:db/add song-id :mb.song/name (normalize-entity-name-string song-name)])
-                    artist-name (conj [:db/add song-id :mb.artist/name (normalize-entity-name-string artist-name)])
-                    album-name (conj [:db/add song-id :mb.album/name (normalize-entity-name-string album-name)])
-                    song-year (conj [:db/add song-id :mb.song/year song-year]))
-          {:keys [db-after]} @(transact-reified datomic-cmp tx-data)]
-      (into {} (d/touch (d/entity db-after song-id)))))
+  (update-song-artist [datomic-cmp song-id new-artist-name]
+    (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                (update-song-artist-transaction (d/db (:conn datomic-cmp))
+                                                                                song-id
+                                                                                new-artist-name))]
+      (d/touch (d/entity db-after song-id))))
+  
+  (update-song-album [datomic-cmp song-id new-album-name]
+    (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                (update-song-album-transaction (d/db (:conn datomic-cmp))
+                                                                               song-id
+                                                                               new-album-name))]
+      (d/touch (d/entity db-after song-id))))
+  
+  (update-song-name [datomic-cmp song-id new-song-name]
+    (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                [[:db/add song-id :mb.song/name new-song-name]])]
+      (d/touch (d/entity db-after song-id))))
   
   (get-artist-by-name [datomic-cmp name])
   (add-artist [datomic-cmp artist-name])
