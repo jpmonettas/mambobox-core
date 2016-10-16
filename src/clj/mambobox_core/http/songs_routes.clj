@@ -39,24 +39,24 @@
 
            (PUT "/:song-id/artist" [song-id :as req]
                 :summary "Move song to artist with that name "
-                :body-params [new-artist-name schema/Str]
+                :body-params [new-artist-name :- schema/Str]
                 (response/ok
                  (core-music/update-song-artist (:datomic-cmp req)
-                                                song-id
+                                                (Long/parseLong song-id)
                                                 new-artist-name)))
            (PUT "/:song-id/album" [song-id :as req]
                 :summary "Move song to album with that name in the same artist"
-                :body-params [new-album-name schema/Str]
+                :body-params [new-album-name :- schema/Str]
                 (response/ok
                  (core-music/update-song-album (:datomic-cmp req)
-                                                song-id
+                                                (Long/parseLong song-id)
                                                 new-album-name)))
            (PUT "/:song-id/name" [song-id :as req]
                 :summary "Update song name"
-                :body-params [new-song-name schema/Str]
+                :body-params [new-song-name :- schema/Str]
                 (response/ok
                  (core-music/update-song-name (:datomic-cmp req)
-                                                song-id
+                                                (Long/parseLong song-id)
                                                 new-song-name)))))
 
 

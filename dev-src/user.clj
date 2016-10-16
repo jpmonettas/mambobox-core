@@ -4,7 +4,8 @@
             [datomic.api :as d]
             [environ.core :refer [env]]
             [clojure.pprint :as pp]
-            [mambobox-core.protocols :as protos]))
+            [mambobox-core.protocols :as protos]
+            [mambobox-core.utils :as utils]))
 
 (set-init! #'dev-system)
 

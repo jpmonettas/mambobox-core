@@ -23,8 +23,7 @@
 
 
 (defn upload-song [datomic-cmp {:keys [tempfile filename]}]
-  (let [
-        [_ filebase extension] (re-matches #"(.+)\.(.*)" filename)
+  (let [[_ filebase extension] (re-matches #"(.+)\.(.*)" filename)
         song-file-id (str (build-file-id filebase) "." extension)
         song-dest-file (io/file (format "%s/%s" (env :public-files-folder) song-file-id))]
     (io/copy tempfile song-dest-file)
