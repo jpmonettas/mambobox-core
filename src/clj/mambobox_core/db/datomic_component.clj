@@ -126,11 +126,18 @@
      [:db/retract (:db/id current-song-album) :mb.album/songs song-id])))
 
 (defn get-song [db song-id]
-  (d/pull db [:db/id
-              :mb.song/name
-              :mb.song/file-id
-              :mb.song/plays-count
-              :mb.song/tags] song-id))
+  (let [song-album (-> (d/entity db song-id) :mb.album/_songs first)
+        song-artist (-> song-album :mb.artist/_albums first)]
+    (-> (d/pull db [:db/id
+                    :mb.song/name
+                    :mb.song/file-id
+                    :mb.song/plays-count
+                    :mb.song/tags]
+                song-id)
+        (assoc :artist {:id (:db/id song-artist)
+                        :name (:mb.artist/name song-artist)}
+               :album {:id (:db/id song-album)
+                       :name (:mb.album/name song-album)}))))
 
 (defn ensure-artist-alums-clean [datomic-cmp]
   (when-let [rm-al-tx (remove-empty-ablums-transaction (d/db (:conn datomic-cmp)))]
@@ -171,14 +178,18 @@
                                                 [[:db/add song-id :mb.song/name (normalize-entity-name-string new-song-name)]])]
       (get-song db-after song-id)))
   
-  (get-artist-by-name [datomic-cmp name])
-  (add-artist [datomic-cmp artist-name])
+  (add-song-tag [datomic-cmp song-id tag]
+    (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                [[:db/add song-id :mb.song/tags tag]])]
+      (get-song db-after song-id)))
 
-  (add-album [_ artist-id album-name])
-  (get-album-by-name [_ artist-id name])
+  (remove-song-tag [datomic-cmp song-id tag]
+    (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                [[:db/retract song-id :mb.song/tags tag]])]
+      (get-song db-after song-id)))
   
-  (add-song-tag [_ song-id tag user-id])
-  (get-song [_ song-id]))
+  (get-song-by-id [datomic-cmp song-id]
+    (get-song (d/db (:conn datomic-cmp)) song-id)))
 
 
 (defn device-user [db device-uniq-id]

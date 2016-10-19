@@ -37,6 +37,11 @@
                                             (Long/parseLong song-id))
                 (response/ok))
 
+           (GET "/:song-id" [song-id :as req]
+                :summary "Returns the song entity"
+                (response/ok (core-music/get-song-by-id (:datomic-cmp req)
+                                                        (Long/parseLong song-id))))
+
            (PUT "/:song-id/artist" [song-id :as req]
                 :summary "Move song to artist with that name "
                 :body-params [new-artist-name :- schema/Str]
@@ -57,6 +62,20 @@
                 (response/ok
                  (core-music/update-song-name (:datomic-cmp req)
                                                 (Long/parseLong song-id)
-                                                new-song-name)))))
+                                                new-song-name)))
+
+           (POST "/:song-id/tags/:tag" [song-id tag :as req]
+                 :summary "Tag a song"
+                 (response/ok
+                  (core-music/tag-song (:datomic-cmp req)
+                                               (Long/parseLong song-id)
+                                               tag)))
+
+           (DELETE "/:song-id/tags/:tag" [song-id tag :as req]
+                 :summary "Untag a song"
+                 (response/ok
+                  (core-music/untag-song (:datomic-cmp req)
+                                               (Long/parseLong song-id)
+                                               tag)))))
 
 

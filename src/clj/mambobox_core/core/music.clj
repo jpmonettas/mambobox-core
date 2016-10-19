@@ -39,6 +39,15 @@
 (defn update-song-name [datomic-cmp song-id new-song-name]
   (protos/update-song-name datomic-cmp song-id new-song-name))
 
+(defn tag-song [datomic-cmp song-id tag]
+  (protos/add-song-tag datomic-cmp song-id tag))
+
+(defn untag-song [datomic-cmp song-id tag]
+  (protos/remove-song-tag datomic-cmp song-id tag))
+
+(defn get-song-by-id [datomic-cmp song-id]
+  (protos/get-song-by-id datomic-cmp song-id))
+
 (defn user-favourites-songs [datomic-cmp device-id]
   (let [user (protos/get-user-by-device-uuid datomic-cmp device-id)]
     )

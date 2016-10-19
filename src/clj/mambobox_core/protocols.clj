@@ -6,12 +6,9 @@
   (update-song-album [_ song-id new-album-name])
   (update-song-name [_ song-id new-song-name])
 
-  (add-artist [_ artist-name])
-  (get-artist-by-name [_ name])
-  (add-album [_ artist-id album-name])
-  (get-album-by-name [_ artist-id name])
-  (add-song-tag [_ song-id tag user-id])
-  (get-song [_ song-id]))
+  (add-song-tag [_ song-id tag])
+  (remove-song-tag [_ song-id tag])
+  (get-song-by-id [_ song-id]))
 
 (defprotocol UserPersistence
   (add-device [_ device-info user-id])
