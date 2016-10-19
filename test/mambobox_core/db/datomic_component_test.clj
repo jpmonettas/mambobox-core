@@ -79,21 +79,20 @@
         ;; move song-1 to test->unknown
         {db-after-m1 :db-after} (d/with loaded-db (update-song-artist-transaction loaded-db
                                                                                   (r-tmp song1-tmp)
-                                                                                  "test"))
+                                                                                  "test artist"))
         ;; move song-2 to :latin-vibe->album-1
         {db-after-m2 :db-after} (d/with loaded-db (update-song-artist-transaction loaded-db
                                                                                   (r-tmp song2-tmp)
                                                                                  "Latin vibe"))]
 
     ;; FIRST MOVE !
-    
-    (is (d/entity db-after-m1 [:mb.artist/name "test"])
-        "there should be a new artist called test")
+    (is (d/entity db-after-m1 [:mb.artist/name "test-artist"])
+        "there should be a new artist called test-artist")
 
-    (is (-> (d/entity db-after-m1 [:mb.artist/name "test"]) :mb.artist/albums first :mb.album/name (= "unknown"))
+    (is (-> (d/entity db-after-m1 [:mb.artist/name "test-artist"]) :mb.artist/albums first :mb.album/name (= "unknown"))
         "the new test artist should have an unkown album")
 
-    (is (-> (d/entity db-after-m1 (r-tmp song1-tmp)) :mb.album/_songs first :mb.artist/_albums first :mb.artist/name (= "test"))
+    (is (-> (d/entity db-after-m1 (r-tmp song1-tmp)) :mb.album/_songs first :mb.artist/_albums first :mb.artist/name (= "test-artist"))
         "now the song should be under the test artist")
 
     (is (-> (d/entity db-after-m1 (r-tmp uk->uk-tmp)) :mb.album/songs empty?)
@@ -105,7 +104,7 @@
         "album latin-vibe->a1-tmp should have a song named song-2")))
 
 
-(deftest update-song-artist-transaction-test
+(deftest update-song-album-transaction-test
   (let [empty-db (d/db (:conn (new-test-mambobox-datomic-cmp)))
         latin-vibe-tmp (d/tempid :db.part/user)
         greatest-hits-tmp (d/tempid :db.part/user)

@@ -13,9 +13,9 @@
             db)
        (map first)
        (d/pull-many db [:mb.artist/name
-                        :db/ident
+                        :db/id
                         {:mb.artist/albums [:mb.album/name
-                                            :db/ident
+                                            :db/id
                                             {:mb.album/songs [:mb.song/name
-                                                              :db/ident]}]}])
+                                                              :db/id]}]}])
        (ds/view)))

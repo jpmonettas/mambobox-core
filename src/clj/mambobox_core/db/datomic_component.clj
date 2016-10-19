@@ -1,12 +1,11 @@
 (ns mambobox-core.db.datomic-component
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
-            [io.rkn.conformity :as c]
             [environ.core :refer [env]]
-            [mambobox-core.protocols :as mambo-protocols]
+            [io.rkn.conformity :as c]
             [mambobox-core.core.music :refer [normalize-entity-name-string]]
-            [mambobox-core.http.handler :refer [*request-device-uniq-id*]]))
-
+            [mambobox-core.http.handler :refer [*request-device-uniq-id*]]
+            [mambobox-core.protocols :as mambo-protocols]))
 
 (defn transact-reified [datomic-cmp tx-data]
   (let [user (mambo-protocols/get-user-by-device-uuid datomic-cmp
@@ -33,10 +32,34 @@
 (defn new-mambobox-datomic-cmp [datomic-uri]
   (map->MamboboxDatomicComponent {:datomic-uri datomic-uri}))
 
+(defn remove-empty-ablums-transaction [db]
+  (let [empty-albums (->> (d/q '[:find ?album
+                             :in $
+                             :where
+                             [?album :mb.album/name _]
+                             [(missing? $ ?album :mb.album/songs)]]
+                               db)
+                          (map first))]
+    (when-not (empty? empty-albums)
+      (map (fn [ea-id] [:album/retract ea-id]) empty-albums))))
+
+(defn remove-empty-artists-transaction [db]
+  (let [empty-artists (->> (d/q '[:find ?artist
+                                  :in $
+                                  :where
+                                  [?artist :mb.artist/name _]
+                                  [(missing? $ ?artist :mb.artist/albums)]]
+                                db)
+                           (map first))]
+    (when-not (empty? empty-artists)
+      (map (fn [ea-id] [:album/retract ea-id]) empty-artists))))
+
+
+
 (defn add-song-transaction [db song-file-id song-info]
   (let [song-artist-name (normalize-entity-name-string (or (:artist song-info) "unknown"))
         song-album-name (normalize-entity-name-string (or (:album song-info) "unknown"))
-        song-name (normalize-entity-name-string (or (:title song-info) "unknown"))
+        song-name (normalize-entity-name-string (or (:title song-info) (str "unknown" (rand-int 10000))))
         song-year (:year song-info)
         artist (d/entity db [:mb.artist/name song-artist-name])
         artist-id (if artist (:db/id artist) (d/tempid :db.part/user))
@@ -77,7 +100,7 @@
       ;; if not, we need to create an artist, album and move the song
       (let [new-artist-id (d/tempid :db.part/user)
             new-album-id (d/tempid :db.part/user)]
-        [[:artist/add new-artist-id new-artist-name]
+        [[:artist/add new-artist-id (normalize-entity-name-string new-artist-name)]
          [:album/add new-album-id new-artist-id (:mb.album/name current-song-album)]
          [:db/retract (:db/id current-song-album) :mb.album/songs song-id]
          [:db/add new-album-id :mb.album/songs song-id]]))))
@@ -96,12 +119,25 @@
 
        ;; if not, create the album and add the song to it
        (let [new-album-id (d/tempid :db.part/user)]
-         [[:album/add new-album-id (:db/id current-song-artist) new-album-name]
+         [[:album/add new-album-id (:db/id current-song-artist) (normalize-entity-name-string new-album-name)]
           [:db/add new-album-id :mb.album/songs song-id]]))
 
      ;; always remove from previous album
      [:db/retract (:db/id current-song-album) :mb.album/songs song-id])))
 
+(defn get-song [db song-id]
+  (d/pull db [:db/id
+              :mb.song/name
+              :mb.song/file-id
+              :mb.song/plays-count
+              :mb.song/tags] song-id))
+
+(defn ensure-artist-alums-clean [datomic-cmp]
+  (when-let [rm-al-tx (remove-empty-ablums-transaction (d/db (:conn datomic-cmp)))]
+    (let [{db-after-albums-clean :db-after} @(d/transact (:conn datomic-cmp) rm-al-tx)]
+      (when-let [rm-ar-tx (remove-empty-artists-transaction db-after-albums-clean)]
+        (d/transact (:conn datomic-cmp) rm-ar-tx)))))
+      
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/MusicPersistence
@@ -111,26 +147,29 @@
                                                 (add-song-transaction (d/db (:conn datomic-cmp))
                                                                       song-file-id
                                                                       id3-info))]
-      (d/touch (d/entity db-after [:mb.song/file-id song-file-id]))))
+      (get-song db-after [:mb.song/file-id song-file-id])))
 
   (update-song-artist [datomic-cmp song-id new-artist-name]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
                                                 (update-song-artist-transaction (d/db (:conn datomic-cmp))
                                                                                 song-id
                                                                                 new-artist-name))]
-      (d/touch (d/entity db-after song-id))))
+      (ensure-artist-alums-clean datomic-cmp)
+      (get-song db-after song-id)))
   
   (update-song-album [datomic-cmp song-id new-album-name]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
                                                 (update-song-album-transaction (d/db (:conn datomic-cmp))
                                                                                song-id
                                                                                new-album-name))]
-      (d/touch (d/entity db-after song-id))))
+      ;; keep everything clean
+      (ensure-artist-alums-clean datomic-cmp)
+      (get-song db-after song-id)))
   
   (update-song-name [datomic-cmp song-id new-song-name]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
-                                                [[:db/add song-id :mb.song/name new-song-name]])]
-      (d/touch (d/entity db-after song-id))))
+                                                [[:db/add song-id :mb.song/name (normalize-entity-name-string new-song-name)]])]
+      (get-song db-after song-id)))
   
   (get-artist-by-name [datomic-cmp name])
   (add-artist [datomic-cmp artist-name])

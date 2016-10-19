@@ -132,6 +132,16 @@
                           :code [{:db/id id
                                   :mb.artist/name artist-name}]}}
 
+          ;; Retract an artist
+          {:db/id #db/id[:db.part/user]
+           :db/ident :artist/retract
+           :db/fn #db/fn {:lang :clojure
+                          :params [db id]
+                          :code (if-not (empty? (:mb.artist/albums (d/entity db id)))
+                                  (throw (Exception. "Artist still has albums"))
+                                  [[:db.fn/retractEntity id]])}}
+
+          
           ;; Add an album
           {:db/id #db/id[:db.part/user]
            :db/ident :album/add
@@ -149,6 +159,16 @@
                                     (throw (Exception. (format "There is already an album called %s for artist %s" album-name artist-id)))
                                     [[:db/add album-id :mb.album/name album-name]
                                      [:db/add artist-id :mb.artist/albums album-id]]))}}
+
+          ;; Retract an album
+          {:db/id #db/id[:db.part/user]
+           :db/ident :album/retract
+           :db/fn #db/fn {:lang :clojure
+                          :params [db id]
+                          :code (if-not (empty? (:mb.album/songs (d/entity db id)))
+                                  (throw (Exception. "Album still have songs"))
+                                  [[:db.fn/retractEntity id]])}}
+
 
           ;; Add a song
           {:db/id #db/id[:db.part/user]
