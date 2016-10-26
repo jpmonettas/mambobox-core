@@ -11,9 +11,10 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [environ.core :refer [env]]
             [camel-snake-kebab.core :refer [->kebab-case ->camelCase]]
-            [taoensso.timbre :as l]))
+            [taoensso.timbre :as l]
+            [mambobox-core.http.commons :refer [*request-device-uniq-id*]]))
 
-(def ^:dynamic *request-device-uniq-id*)
+
 
 (defn generic-exception-handler [^Exception e data req]
   (response/internal-server-error {:message (.getMessage e)}))

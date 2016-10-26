@@ -11,6 +11,7 @@
    ;; Artists
    [{:db/id #db/id[:db.part/db]
      :db/ident :mb.artist/name
+     :db/fulltext true
      :db/unique :db.unique/identity
      :db/valueType :db.type/string
      :db/cardinality :db.cardinality/one
@@ -27,6 +28,7 @@
    ;; Albums
    [{:db/id #db/id[:db.part/db]
      :db/ident :mb.album/name
+     :db/fulltext true
      :db/valueType :db.type/string
      :db/cardinality :db.cardinality/one
      :db/doc "The album name"
@@ -41,6 +43,7 @@
    ;; Songs
    [{:db/id #db/id[:db.part/db]
      :db/ident :mb.song/name
+     :db/fulltext true
      :db/valueType :db.type/string
      :db/cardinality :db.cardinality/one
      :db/doc "A song name"
@@ -138,7 +141,8 @@
            :db/fn #db/fn {:lang :clojure
                           :params [db id]
                           :code (if-not (empty? (:mb.artist/albums (d/entity db id)))
-                                  (throw (Exception. "Artist still has albums"))
+                                  (throw (ex-info "Artist still has albums"
+                                                  {:type :non-empty-artist-error}))
                                   [[:db.fn/retractEntity id]])}}
 
           
@@ -156,7 +160,8 @@
                                                                 artist-id
                                                                 album-name))]
                                   (if artist-album
-                                    (throw (Exception. (format "There is already an album called %s for artist %s" album-name artist-id)))
+                                    (throw (ex-info (format "There is already an album called %s for artist %s" album-name artist-id)
+                                                    {:type :duplicate-album-error}))
                                     [[:db/add album-id :mb.album/name album-name]
                                      [:db/add artist-id :mb.artist/albums album-id]]))}}
 
@@ -166,7 +171,8 @@
            :db/fn #db/fn {:lang :clojure
                           :params [db id]
                           :code (if-not (empty? (:mb.album/songs (d/entity db id)))
-                                  (throw (Exception. "Album still have songs"))
+                                  (throw (ex-info "Album still have songs"
+                                                  {:type :non-empty-album-error}))
                                   [[:db.fn/retractEntity id]])}}
 
 
@@ -178,7 +184,8 @@
                           :code (let [album (d/entity db album-id)]
                                   (if (not-empty (filter (fn [s] (= song-name (:mb.song/name s)))
                                                          (:mb.album/songs album)))
-                                    (throw (Exception. (format "Already a song called %s for album %s " song-name album-id)))
+                                    (throw (ex-info (format "Already a song called %s for album %s " song-name album-id)
+                                                    {:type :duplicate-song-error}))
                                     (cond-> [{:db/id song-id
                                               :mb.song/name song-name 
                                               :mb.song/file-id song-file-id
@@ -210,7 +217,8 @@
            :db/fn #db/fn {:lang :clojure
                           :params [db id uniq-id locale country user-id]
                           :code (if (d/entity db [:mb.device/uniq-id uniq-id])
-                                  (throw (Exception. (str "There is already a device identified by " uniq-id)))
+                                  (throw (ex-info (str "There is already a device identified by " uniq-id)
+                                                  {:type :duplicate-device-error}))
                                   [{:db/id id
                                     :mb.device/uniq-id uniq-id
                                     :mb.device/country country

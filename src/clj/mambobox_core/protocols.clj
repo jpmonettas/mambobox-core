@@ -13,12 +13,12 @@
 (defprotocol UserPersistence
   (add-device [_ device-info user-id])
   (update-user-nick [_ user-id nick])
-  (get-user-by-device-uuid [_ device-uniq-id]))
+  (get-user-by-device-uuid [_ device-uniq-id])
+  (set-user-favourite-song [_ user-id song-id])
+  (unset-user-favourite-song [_ user-id song-id]))
 
 (defprotocol SongTracker
   (track-song-view [_ song-id]))
 
 (defprotocol SongSearch
-  (search-songs-by-str [_ str])
-  (search-albums-by-str [_ str])
-  (search-artists-by-str [_ str]))
+  (search-songs-by-str [_ str]))

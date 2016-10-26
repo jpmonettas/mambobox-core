@@ -4,15 +4,20 @@
             [environ.core :refer [env]]
             [io.rkn.conformity :as c]
             [mambobox-core.core.music :refer [normalize-entity-name-string]]
-            [mambobox-core.http.handler :refer [*request-device-uniq-id*]]
+            [mambobox-core.http.commons :refer [*request-device-uniq-id*]]
             [mambobox-core.protocols :as mambo-protocols]))
 
 (defn transact-reified [datomic-cmp tx-data]
-  (let [user (mambo-protocols/get-user-by-device-uuid datomic-cmp
-                                                      *request-device-uniq-id*)]
-    (d/transact (:conn datomic-cmp) (conj tx-data
-                                          {:db/id (d/tempid :db.part/tx)
-                                           :mb.tx/user (:db/id user)}))))
+  (try
+   (let [user (mambo-protocols/get-user-by-device-uuid datomic-cmp
+                                                       *request-device-uniq-id*)]
+     (d/transact (:conn datomic-cmp) (conj tx-data
+                                           {:db/id (d/tempid :db.part/tx)
+                                            :mb.tx/user (:db/id user)})))
+
+   ;; Transact exceptions comes wrapped, unwrap an re throw
+   (catch java.util.concurrent.ExecutionException juce
+       (throw (.getCause juce)))))
 
 
 (defrecord MamboboxDatomicComponent [conn datomic-uri]
@@ -214,10 +219,13 @@
   mambo-protocols/UserPersistence
 
   (add-device [datomic-cmp device-info user-id]
-    (let [conn (:conn datomic-cmp)
-          db (d/db conn)
-          {:keys [db-after]} @(d/transact conn (register-device-transaction db device-info user-id))]
-      (device-user db-after (:mb.device/uniq-id device-info))))
+    (try 
+     (let [conn (:conn datomic-cmp)
+           db (d/db conn)
+           {:keys [db-after]} @(d/transact conn (register-device-transaction db device-info user-id))]
+       (device-user db-after (:mb.device/uniq-id device-info)))
+     (catch java.util.concurrent.ExecutionException juce
+       (throw (.getCause juce)))))
   
   (update-user-nick [datomic-cmp user-id nick]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
@@ -225,7 +233,10 @@
       (into {} (d/touch (d/entity db-after user-id)))))
 
   (get-user-by-device-uuid [datomic-cmp device-uniq-id]
-    (device-user (-> datomic-cmp :conn d/db) device-uniq-id)))
+    (device-user (-> datomic-cmp :conn d/db) device-uniq-id))
+
+  (set-user-favourite-song [datomic-cmp user-id song-id])
+  (unset-user-favourite-song [datomic-cmp user-id song-id]))
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongTracker
@@ -234,6 +245,8 @@
     @(transact-reified datomic-cmp
                        [[:song/track-play song-id]])))
 
+(defn search-songs [db str]
+  )
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongSearch
 
