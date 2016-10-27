@@ -16,9 +16,8 @@
                  :operationId "uploadSong"
                  :summary "Upload a song file"
                  :middleware [upload/wrap-multipart-params]
-                 :multipart-params [image :- upload/TempFileUpload]
+                 :multipart-params [image :- schema/Any]
                  :responses {200 {:schema schema/Any :description "PSD song uploaded"}}
-                 
                  (response/ok (core-music/upload-song (:datomic-cmp req) 
                                                       ;; This is called image because it's the
                                                       ;; name the file upload puts to it
