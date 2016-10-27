@@ -12,7 +12,8 @@
     (assoc this :server (http-server/run-server
                          (create-handler datomic-cmp)
                          {:port (Integer. (env :http-port))
-                          :join? false})))
+                          :join? false
+                          :max-body (* 25 1024 1024)})))
   (stop [this]
     (server)
     (dissoc this :server)))

@@ -23,11 +23,10 @@
                                                       ;; name the file upload puts to it
                                                       ;; have to change that
                                                       image)))
-           
-           (GET "/initial-dump" req
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/initial-dump" req
                 :operationId "getInitialDump"
                 :summary "Returns the songs initial dump, hot, favourites, etc"
-                :body-params [device-id :- schema/Str]
                 (response/ok {:favourites (core-music/user-favourites-songs (:datomic-cmp req)
                                                                             device-id)
                               :hot (core-music/hot-songs (:datomic-cmp req))}))

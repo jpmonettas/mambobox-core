@@ -45,7 +45,7 @@
 (def api-routes
   (api
    {:exceptions {:handlers {:compojure.api.exception/default generic-exception-handler}}
-    :format {:formats [:json]
+    :format {:formats [:json :edn]
              :params-opts {:json {:key-fn key-json->clj}}
              :response-opts {:json {:key-fn key-clj->json}}}
     :swagger {:ui "/swagger-ui"
