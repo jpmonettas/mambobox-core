@@ -323,4 +323,30 @@
                  :where [?sid :mb.song/name]]
                db)
           (map first)
-          (map (partial get-song db))))))
+          (map (partial get-song db)))))
+
+  (explore-by-tag [datomic-cmp tag page]
+    (let [db (d/db (:conn datomic-cmp))]
+      (->> (d/q '[:find ?sid
+                  :in $ ?tag
+                  :where
+                  [?sid :mb.song/tags ?tag]]
+                db
+                tag)
+           (map first)
+           (map (partial get-song db)))))
+  
+  (get-all-artists [datomic-cmp]
+    (let [db (d/db (:conn datomic-cmp))
+          artists-ids (map first (d/q '[:find ?aid :where [?aid :mb.artist/name]] db))]
+      (d/pull-many db [:db/id :mb.artist/name] artists-ids)))
+  
+  (explore-artist [datomic-cmp artist-id]
+    (let [db (d/db (:conn datomic-cmp))
+          albums-ids (->> (d/entity db artist-id) :mb.artist/albums (map :db/id))]
+      (d/pull-many db [:db/id :mb.album/name] albums-ids)))
+  
+  (explore-album [datomic-cmp album-id]
+    (let [db (d/db (:conn datomic-cmp))
+          songs-ids (->> (d/entity db album-id) :mb.album/songs (map :db/id))]
+      (map (partial get-song db) songs-ids))))

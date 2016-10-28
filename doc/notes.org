@@ -3,6 +3,9 @@
 *** TODO Fix DB validation
 *** TODO Fix cljs-ajax get and replace the gets changed to posts
 *** TODO Fix notifications and progress when uploading
+*** TODO Add my songs tab
+    - Add my songs to DB
+    - Upload should return the song, so we can add it to the col
 *** TODO Song edition with autocomplete
 *** TODO When editing a song, update your db
 *** TODO Artist -> Album -> Songs exploration
@@ -19,8 +22,12 @@
 *** DONE Search songs service
 *** DONE Autocomplete artist service
 *** DONE Autocomplete albums service
-*** TODO Get albums for artist service
-*** TODO Get songs for album
+*** DONE Get all artists
+*** DONE Get albums for artist service
+*** DONE Get songs for album 
+*** DONE Get songs for tab
+
+*** TODO Get my songs service and add it to initial dump
 *** TODO Add loggig
 *** TODO Create a tool for undo everything a user has done
 

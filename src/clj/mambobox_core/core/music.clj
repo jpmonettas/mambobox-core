@@ -61,3 +61,16 @@
 (defn search-albums [datomic-cmp q]
   (protos/search-albums datomic-cmp q))
 
+(defn explore-by-tag [datomic-cmp tag page]
+  (protos/explore-by-tag datomic-cmp tag page))
+
+(defn get-all-artists [datomic-cmp]
+  (protos/get-all-artists datomic-cmp))
+
+(defn explore-artist [datomic-cmp artist-id]
+  (protos/explore-artist datomic-cmp artist-id))
+
+(defn explore-album [datomic-cmp album-id]
+  (protos/explore-album datomic-cmp album-id))
+
+

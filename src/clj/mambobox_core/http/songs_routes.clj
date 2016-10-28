@@ -145,6 +145,42 @@
                  (response/ok (core-music/search-albums (:datomic-cmp req)
                                                         q)))
 
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/explore-tag" req
+                 :operationId "exploreSongsByTag"
+                 :summary "Get songs for a tag"
+                 :query-params [tag :- schema/Str
+                                page :- schema/Str]
+
+                 (response/ok (core-music/explore-by-tag (:datomic-cmp req)
+                                                         tag
+                                                         (Integer/parseInt page))))
+
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/all-artists" req
+                 :operationId "getAllArtists"
+                 :summary "Get all artists we have so far"
+
+                 (response/ok (core-music/get-all-artists (:datomic-cmp req))))
+
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/explore-artist" req
+                 :operationId "exploreArtistAlbums"
+                 :summary "Get albums for an artist"
+                 :query-params [artist-id :- schema/Str]
+
+                 (response/ok (core-music/explore-artist (:datomic-cmp req)
+                                                         (Long/parseLong artist-id))))
+
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/explore-album" req
+                 :operationId "exploreAlbumSongs"
+                 :summary "Get album songs"
+                 :query-params [album-id :- schema/Str]
+
+                 (response/ok (core-music/explore-album (:datomic-cmp req)
+                                                        (Long/parseLong album-id))))
+
 
            ))
 
