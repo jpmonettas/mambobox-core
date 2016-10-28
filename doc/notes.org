@@ -1,2 +1,37 @@
-* TODOS
-** TODO Fix cljs-ajax get and replace the gets changed to posts
+* TODOs
+** Mobile
+*** TODO Fix DB validation
+*** TODO Fix cljs-ajax get and replace the gets changed to posts
+*** TODO Fix notifications and progress when uploading
+*** TODO Song edition with autocomplete
+*** TODO When editing a song, update your db
+*** TODO Artist -> Album -> Songs exploration
+*** TODO Tag exploration
+*** TODO Some kind of playlist
+*** TODO Track plays on song play
+*** TODO Effects and coeffects for async storage
+*** TODO Register device only when not registered
+*** TODO Profile with nickname edition
+*** TODO Mark song as favourite
+*** TODO Add a splash when loading
+*** TODO Create a logo
+** Server
+*** TODO Search songs service
+*** TODO Autocomplete artist service
+*** TODO Autocomplete albums service
+*** TODO Get albums for artist service
+*** TODO Get songs for album
+*** TODO Add loggig
+*** TODO Create a tool for undo everything a user has done
+
+* Roadmap/Ideas
+** Geolocalized mambo events
+   - Can have attributes like social dance, live music, etc
+** Mambo trivia 
+   After getting a significat amount of classified music play random parts of random classified music
+   and make users guess by choosing options like artist/albums/tags/song-names etc
+** Album art
+   Make something for users to upload an album photo, normalize it, and show it in lists
+** Make it social
+   Do the phone number SMS thing like whatsapp, so it can know which of your contacts has the app
+   Then it can do things like dedicate a song, etc
