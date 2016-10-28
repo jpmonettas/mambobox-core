@@ -118,12 +118,34 @@
                                            tag
                                            user-id)))
 
+           ;; TODO This should be a get when cljs-ajax works 
            (POST "/search" req
                  :operationId "searchSongs"
                  :summary "Search songs"
                  :query-params [q :- schema/Str]
 
                  (response/ok (core-music/search (:datomic-cmp req)
-                                                 q)))))
+                                                 q)))
+
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/artist/search" req
+                 :operationId "searchArtists"
+                 :summary "Search artist, for use in autocomplete"
+                 :query-params [q :- schema/Str]
+
+                 (response/ok (core-music/search-artists (:datomic-cmp req)
+                                                        q)))
+
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/album/search" req
+                 :operationId "searchAlbums"
+                 :summary "Search albums, for use in autocomplete"
+                 :query-params [q :- schema/Str]
+
+                 (response/ok (core-music/search-albums (:datomic-cmp req)
+                                                        q)))
+
+
+           ))
 
 

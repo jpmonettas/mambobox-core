@@ -297,6 +297,25 @@
                 query)
            (map (fn [[sid score]]
                   (get-song db sid))))))
+
+  (search-albums [datomic-cmp q]
+    (->> (d/q '[:find ?aname
+                :in $ ?q
+                :where
+                [(fulltext $ :mb.album/name ?q) [[_ ?aname]]]]
+              (d/db (:conn datomic-cmp))
+              (str q "*"))
+         (map first)))
+
+  (search-artists [datomic-cmp q]
+    (->> (d/q '[:find ?aname
+                :in $ ?q
+                :where
+                [(fulltext $ :mb.artist/name ?q) [[_ ?aname]]]]
+              (d/db (:conn datomic-cmp))
+              (str q "*"))
+         (map first)))
+  
   
   (hot-songs [datomic-cmp]
     (let [db (d/db (:conn datomic-cmp))]

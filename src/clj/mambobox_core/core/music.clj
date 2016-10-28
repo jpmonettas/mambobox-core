@@ -54,3 +54,10 @@
 
 (defn search [datomic-cmp q]
   (protos/search-songs-by-str datomic-cmp q))
+
+(defn search-artists [datomic-cmp q]
+  (protos/search-artists datomic-cmp q))
+
+(defn search-albums [datomic-cmp q]
+  (protos/search-albums datomic-cmp q))
+

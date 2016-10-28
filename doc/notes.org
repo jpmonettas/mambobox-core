@@ -17,8 +17,8 @@
 *** TODO Create a logo
 ** Server
 *** DONE Search songs service
-*** TODO Autocomplete artist service
-*** TODO Autocomplete albums service
+*** DONE Autocomplete artist service
+*** DONE Autocomplete albums service
 *** TODO Get albums for artist service
 *** TODO Get songs for album
 *** TODO Add loggig

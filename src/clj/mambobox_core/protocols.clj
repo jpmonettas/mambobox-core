@@ -21,5 +21,7 @@
   (track-song-view [_ song-id user-id]))
 
 (defprotocol SongSearch
-  (search-songs-by-str [_ str])
+  (search-songs-by-str [_ q])
+  (search-albums [_ q])
+  (search-artists [_ q])
   (hot-songs [_]))
