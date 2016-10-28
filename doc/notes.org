@@ -16,7 +16,7 @@
 *** TODO Add a splash when loading
 *** TODO Create a logo
 ** Server
-*** TODO Search songs service
+*** DONE Search songs service
 *** TODO Autocomplete artist service
 *** TODO Autocomplete albums service
 *** TODO Get albums for artist service
@@ -27,6 +27,7 @@
 * Roadmap/Ideas
 ** Geolocalized mambo events
    - Can have attributes like social dance, live music, etc
+** Play music offline
 ** Mambo trivia 
    After getting a significat amount of classified music play random parts of random classified music
    and make users guess by choosing options like artist/albums/tags/song-names etc

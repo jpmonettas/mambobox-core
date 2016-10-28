@@ -7,7 +7,7 @@
   :plugins [[lein-environ "1.1.0"]]
   
   :dependencies [[org.clojure/clojure "1.9.0-alpha13"]
-                 [com.datomic/datomic-free "0.9.5394"]
+                 [com.datomic/datomic-free "0.9.5407"]
 
                  
                  ;; managing configuration for dif envs

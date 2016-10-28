@@ -51,3 +51,6 @@
 
 (defn track-song-play [datomic-cmp song-id user-id]
   (protos/track-song-view datomic-cmp song-id user-id))
+
+(defn search [datomic-cmp q]
+  (protos/search-songs-by-str datomic-cmp q))

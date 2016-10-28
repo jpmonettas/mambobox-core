@@ -32,9 +32,14 @@
        [?u :mb.user/nick ?un]]))
 
 (defn qsongs []
-  (q '[:find ?s ?sname ?count ?u ?unick
+  (q '[:find ?s ?sname ?artistn ?albumn ?sfid ?count ?u ?unick
        :where
        [?s :mb.song/name ?sname ?tx]
+       [?s :mb.song/file-id ?sfid]
+       [?artist :mb.artist/albums ?album]
+       [?album :mb.album/songs ?s]
+       [?artist :mb.artist/name ?artistn]
+       [?album :mb.album/name ?albumn]
        [?s :mb.song/plays-count ?count]
        [?tx :mb.tx/user ?u]
        [?u :mb.user/nick ?unick]]))

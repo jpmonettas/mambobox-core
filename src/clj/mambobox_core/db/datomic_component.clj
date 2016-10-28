@@ -4,7 +4,8 @@
             [environ.core :refer [env]]
             [io.rkn.conformity :as c]
             [mambobox-core.generic-utils :as gen-utils]
-            [mambobox-core.protocols :as mambo-protocols]))
+            [mambobox-core.protocols :as mambo-protocols]
+            [clojure.string :as str]))
 
 (defn transact-reified [datomic-cmp user-id tx-data]
   (try
@@ -273,7 +274,29 @@
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongSearch
 
-  (search-songs-by-str [datomic-cmp str])
+  (search-songs-by-str [datomic-cmp qstr]
+    (let [db (d/db (:conn datomic-cmp))
+          query (->> (str/split qstr #" ")
+                     (map #(str % "~"))
+                     (str/join " "))]
+      (->> (d/q '[:find ?sid ?score
+                  :in $ % ?qstr
+                  :where
+                  (search ?qstr ?sid ?score)
+                  ]
+                db
+                '[[(search ?q ?sid ?score)
+                   [(fulltext $ :mb.song/name ?q) [[?sid _ _ ?score]]]]
+                  [(search ?q ?sid ?score)
+                   [?artist :mb.artist/albums ?album]
+                   [?album :mb.album/songs ?sid]
+                   [(fulltext $ :mb.artist/name ?q) [[?artist _ _ ?score]]]]
+                  [(search ?q ?sid ?score)
+                   [?album :mb.album/songs ?sid]
+                   [(fulltext $ :mb.album/name ?q) [[?album _ _ ?score]]]]]
+                query)
+           (map (fn [[sid score]]
+                  (get-song db sid))))))
   
   (hot-songs [datomic-cmp]
     (let [db (d/db (:conn datomic-cmp))]

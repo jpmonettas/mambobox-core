@@ -25,6 +25,7 @@
                                                       ;; have to change that
                                                       image
                                                       user-id)))
+           
            ;; TODO This should be a get when cljs-ajax works 
            (POST "/initial-dump" [user-id :as req]
                 :operationId "getInitialDump"
@@ -115,6 +116,14 @@
                     (core-music/untag-song (:datomic-cmp req)
                                            (Long/parseLong song-id)
                                            tag
-                                           user-id)))))
+                                           user-id)))
+
+           (POST "/search" req
+                 :operationId "searchSongs"
+                 :summary "Search songs"
+                 :query-params [q :- schema/Str]
+
+                 (response/ok (core-music/search (:datomic-cmp req)
+                                                 q)))))
 
 
