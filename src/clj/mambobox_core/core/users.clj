@@ -19,5 +19,4 @@
   (protos/unset-user-favourite-song datomic-cmp user-id song-id))
 
 (defn get-all-user-favourite-songs [datomic-cmp user-id]
-  (->> (protos/get-all-user-favourite-songs datomic-cmp user-id)
-       (map #(assoc % :mb.song/url (str "/public-files/" (:mb.song/file-id %))))))
+  (protos/get-all-user-favourite-songs datomic-cmp user-id))

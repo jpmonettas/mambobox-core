@@ -20,16 +20,16 @@
                                                        :mb.song/file-id "l-a1-s1-f1"}]}]}]
         {loaded-db :db-after} (d/with empty-db txdata)
         {db-after-s1 :db-after} (d/with loaded-db (add-song-transaction loaded-db
-                                                                     "l-a1-s1-f2"
-                                                                     {:artist "LatinVibe"
-                                                                      :album "Latin VibeAlbum 1"
-                                                                      :year 2010
-                                                                      :title "La llave"}))
+                                                                        "l-a1-s1-f2"
+                                                                        {:artist "LatinVibe"
+                                                                         :album "Latin VibeAlbum 1"
+                                                                         :year "2010"
+                                                                         :title "La llave"}))
         {db-after-s2 :db-after} (d/with db-after-s1 (add-song-transaction db-after-s1
                                                                           "gc-a1-s1-f1"
                                                                           {:artist "El gran combo de puerto rico"
                                                                            :album "GreatestHits"
-                                                                           :year 2010
+                                                                           :year "2010"
                                                                            :title "Guaguanco del gran combo"}))
         added-song1-entity (d/entity db-after-s2 [:mb.song/file-id "l-a1-s1-f2"])
         auto-created-artist (d/entity db-after-s2 [:mb.artist/name "el-gran-combo-de-puerto-rico"])

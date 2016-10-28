@@ -3,16 +3,13 @@
             [claudio.id3 :as id3]
             [clojure.java.io :as io]
             [environ.core :refer [env]]
-            [camel-snake-kebab.core :as csk]
             [clojure.string :as str]
-            [mambobox-core.protocols :as protos]))
+            [mambobox-core.protocols :as protos]
+            [mambobox-core.generic-utils :as gen-utils]))
 
-
-(defn normalize-entity-name-string [name-str]
-  (csk/->kebab-case name-str))
 
 (defn build-file-id [filename]
-  (str (normalize-entity-name-string filename) "_" (rand-int 100)))
+  (str (gen-utils/normalize-entity-name-string filename) "_" (rand-int 100)))
 
 (s/def ::tempfile #(instance? java.io.File %))
 (s/def ::filename string?)
@@ -49,7 +46,8 @@
   (protos/get-song-by-id datomic-cmp song-id))
 
 
-(defn hot-songs [datomic-cmp])
+(defn hot-songs [datomic-cmp]
+  (protos/hot-songs datomic-cmp))
 
 (defn track-song-play [datomic-cmp song-id user-id]
   (protos/track-song-view datomic-cmp song-id user-id))

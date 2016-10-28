@@ -29,13 +29,23 @@
            (POST "/initial-dump" [user-id :as req]
                 :operationId "getInitialDump"
                 :summary "Returns the songs initial dump, hot, favourites, etc"
-                (response/ok {:favourites (core-user/get-all-user-favourite-songs (:datomic-cmp req)
-                                                                                  user-id)
-                              :hot (core-music/hot-songs (:datomic-cmp req))}))
+                (let [favourites-songs (core-user/get-all-user-favourite-songs (:datomic-cmp req)
+                                                                               user-id)
+                      hot-songs (core-music/hot-songs (:datomic-cmp req))
+                      all-songs (-> #{}
+                                    (into favourites-songs)
+                                    (into hot-songs))]
+                  (response/ok {:favourites-songs-ids (->> favourites-songs
+                                                           (map :db/id)
+                                                           (into #{}))
+                                :hot-songs-ids (->> hot-songs
+                                                    (map :db/id)
+                                                    (into #{}))
+                                :songs all-songs})))
 
            (PUT "/:song-id/track-play" [user-id :as req]
                 :operationId "trackSongPlay"
-                :summary "Returns the songs initial dump, hot, favourites, etc"
+                :summary "Tracks a song play"
                 :path-params [song-id :- schema/Str]
                 (core-music/track-song-play (:datomic-cmp req)
                                             (Long/parseLong song-id)
