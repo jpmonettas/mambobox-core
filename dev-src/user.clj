@@ -39,24 +39,12 @@
        [?tx :mb.tx/user ?u]
        [?u :mb.user/nick ?unick]]))
 
-
+(defn view-artist []
+  (utils/view-artists (d/db (:conn (db)))))
 
 (defn e [id]
   (pp/pprint (d/touch (d/entity (d/db (:conn (db))) id))))
+
 (comment
-  @(d/transact (:conn (db))
-               [{:db/id #db/id[:db.part/user]
-                 :db/ident :artist/retract
-                 :db/fn (d/function '{:lang :clojure
-                                      :params [db id]
-                                      :code (if-not (empty? (:mb.artist/albums (d/entity db id)))
-                                              (throw (Exception. "Artist still has albums"))
-                                              [[:db.fn/retractEntity id]])})}
-                {:db/id #db/id[:db.part/user]
-                 :db/ident :album/retract
-                 :db/fn (d/function '{:lang :clojure
-                                      :params [db id]
-                                      :code (if-not (empty? (:mb.album/songs (d/entity db id)))
-                                              (throw (Exception. "Album still have songs"))
-                                              [[:db.fn/retractEntity id]])})}])
+  
   )

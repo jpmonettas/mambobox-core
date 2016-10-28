@@ -100,7 +100,13 @@
      :db/ident :mb.user/devices
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/many
-     :db/doc "The user nickname"
+     :db/doc "The user devices"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.user/favourite-songs
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :db/doc "The user favourite songs"
      :db.install/_attribute :db.part/db}]
 
    ;; Devices

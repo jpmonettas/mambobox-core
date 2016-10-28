@@ -4,16 +4,13 @@
             [environ.core :refer [env]]
             [io.rkn.conformity :as c]
             [mambobox-core.core.music :refer [normalize-entity-name-string]]
-            [mambobox-core.http.commons :refer [*request-device-uniq-id*]]
             [mambobox-core.protocols :as mambo-protocols]))
 
-(defn transact-reified [datomic-cmp tx-data]
+(defn transact-reified [datomic-cmp user-id tx-data]
   (try
-   (let [user (mambo-protocols/get-user-by-device-uuid datomic-cmp
-                                                       *request-device-uniq-id*)]
-     (d/transact (:conn datomic-cmp) (conj tx-data
-                                           {:db/id (d/tempid :db.part/tx)
-                                            :mb.tx/user (:db/id user)})))
+   (d/transact (:conn datomic-cmp) (conj tx-data
+                                         {:db/id (d/tempid :db.part/tx)
+                                          :mb.tx/user user-id}))
 
    ;; Transact exceptions comes wrapped, unwrap an re throw
    (catch java.util.concurrent.ExecutionException juce
@@ -139,10 +136,10 @@
                     :mb.song/plays-count
                     :mb.song/tags]
                 song-id)
-        (assoc :artist {:id (:db/id song-artist)
-                        :name (:mb.artist/name song-artist)}
-               :album {:id (:db/id song-album)
-                       :name (:mb.album/name song-album)}))))
+        (assoc :artist {:db/id (:db/id song-artist)
+                        :mb.artist/name (:mb.artist/name song-artist)}
+               :album {:db/id (:db/id song-album)
+                       :mb.album/name (:mb.album/name song-album)}))))
 
 (defn ensure-artist-alums-clean [datomic-cmp]
   (when-let [rm-al-tx (remove-empty-ablums-transaction (d/db (:conn datomic-cmp)))]
@@ -154,23 +151,26 @@
 (extend-type MamboboxDatomicComponent
   mambo-protocols/MusicPersistence
 
-  (add-song [datomic-cmp song-file-id id3-info]
+  (add-song [datomic-cmp song-file-id id3-info user-id]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 (add-song-transaction (d/db (:conn datomic-cmp))
                                                                       song-file-id
                                                                       id3-info))]
       (get-song db-after [:mb.song/file-id song-file-id])))
 
-  (update-song-artist [datomic-cmp song-id new-artist-name]
+  (update-song-artist [datomic-cmp song-id new-artist-name user-id]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 (update-song-artist-transaction (d/db (:conn datomic-cmp))
                                                                                 song-id
                                                                                 new-artist-name))]
       (ensure-artist-alums-clean datomic-cmp)
       (get-song db-after song-id)))
   
-  (update-song-album [datomic-cmp song-id new-album-name]
+  (update-song-album [datomic-cmp song-id new-album-name user-id]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 (update-song-album-transaction (d/db (:conn datomic-cmp))
                                                                                song-id
                                                                                new-album-name))]
@@ -178,18 +178,21 @@
       (ensure-artist-alums-clean datomic-cmp)
       (get-song db-after song-id)))
   
-  (update-song-name [datomic-cmp song-id new-song-name]
+  (update-song-name [datomic-cmp song-id new-song-name user-id]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 [[:db/add song-id :mb.song/name (normalize-entity-name-string new-song-name)]])]
       (get-song db-after song-id)))
   
-  (add-song-tag [datomic-cmp song-id tag]
+  (add-song-tag [datomic-cmp song-id tag user-id]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 [[:db/add song-id :mb.song/tags tag]])]
       (get-song db-after song-id)))
 
-  (remove-song-tag [datomic-cmp song-id tag]
+  (remove-song-tag [datomic-cmp song-id tag user-id] 
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 [[:db/retract song-id :mb.song/tags tag]])]
       (get-song db-after song-id)))
   
@@ -229,24 +232,42 @@
   
   (update-user-nick [datomic-cmp user-id nick]
     (let [{:keys [db-after]} @(transact-reified datomic-cmp
+                                                user-id
                                                 [[:db/add user-id :mb.user/nick nick]])]
       (into {} (d/touch (d/entity db-after user-id)))))
 
   (get-user-by-device-uuid [datomic-cmp device-uniq-id]
-    (device-user (-> datomic-cmp :conn d/db) device-uniq-id))
+    (when device-uniq-id
+     (device-user (-> datomic-cmp :conn d/db) device-uniq-id)))
 
-  (set-user-favourite-song [datomic-cmp user-id song-id])
-  (unset-user-favourite-song [datomic-cmp user-id song-id]))
+  (set-user-favourite-song [datomic-cmp user-id song-id]
+    @(transact-reified datomic-cmp
+                       user-id
+                       [[:db/add user-id :mb.user/favourite-songs song-id]])
+    nil)
+  
+  (unset-user-favourite-song [datomic-cmp user-id song-id]
+    @(transact-reified datomic-cmp
+                       user-id
+                       [[:db/retract user-id :mb.user/favourite-songs song-id]])
+    nil)
+
+  (get-all-user-favourite-songs [datomic-cmp user-id]
+    (let [db (d/db (:conn datomic-cmp))]
+     (->> (d/entity db user-id)
+          :mb.user/favourite-songs
+          (map :db/id)
+          (map (partial get-song db))))))
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongTracker
 
-  (track-song-view [datomic-cmp song-id]
+  (track-song-view [datomic-cmp song-id user-id] 
     @(transact-reified datomic-cmp
+                       user-id
                        [[:song/track-play song-id]])))
 
-(defn search-songs [db str]
-  )
+
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongSearch
 

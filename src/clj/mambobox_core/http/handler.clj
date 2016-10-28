@@ -12,7 +12,7 @@
             [environ.core :refer [env]]
             [camel-snake-kebab.core :refer [->kebab-case ->camelCase]]
             [taoensso.timbre :as l]
-            [mambobox-core.http.commons :refer [*request-device-uniq-id*]]))
+            [mambobox-core.protocols :as protos]))
 
 
 
@@ -27,14 +27,19 @@
                                (assoc :datomic-cmp datomic-cmp))]
       (handler injected-request))))
 
-(defn wrap-device-id-mandatory [handler]
+(defn wrap-device-id-mandatory [handler datomic-cmp]
   (fn [request]
     (if (.startsWith (:uri request) "/swagger-ui")
       (handler request)
       (if-not (-> request :params :device-id)
         (response/bad-request "You can't make a request without :device-id parameter")
-        (binding [*request-device-uniq-id* (-> request :params :device-id)]
-          (handler request))))))
+        
+        (let [user-id (->> request
+                           :params
+                           :device-id
+                           (protos/get-user-by-device-uuid datomic-cmp)
+                           :db/id)]
+          (handler (assoc-in request [:params :user-id] user-id)))))))
 
 (defn key-json->clj [x]
   (keyword (->kebab-case x)))
@@ -64,7 +69,7 @@
        (wrap-cors :access-control-allow-origin [#".*"]
                     :access-control-allow-methods [:post :get :put :delete])
        (wrap-components datomic-cmp)
-       (wrap-device-id-mandatory)
+       (wrap-device-id-mandatory datomic-cmp)
        (wrap-keyword-params)
        (wrap-params))
 
