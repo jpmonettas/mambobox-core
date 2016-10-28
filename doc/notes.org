@@ -26,8 +26,8 @@
 *** DONE Get albums for artist service
 *** DONE Get songs for album 
 *** DONE Get songs for tab
+*** DONE Get my songs service and add it to initial dump
 
-*** TODO Get my songs service and add it to initial dump
 *** TODO Add loggig
 *** TODO Create a tool for undo everything a user has done
 

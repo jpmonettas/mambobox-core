@@ -15,7 +15,8 @@
   (get-user-by-device-uuid [_ device-uniq-id])
   (set-user-favourite-song [_ user-id song-id])
   (unset-user-favourite-song [_ user-id song-id])
-  (get-all-user-favourite-songs [_ user-id]))
+  (get-all-user-favourite-songs [_ user-id])
+  (get-user-uploaded-songs [_ user-id]))
 
 (defprotocol SongTracker
   (track-song-view [_ song-id user-id]))

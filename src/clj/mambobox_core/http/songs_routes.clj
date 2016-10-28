@@ -33,16 +33,22 @@
                 (let [favourites-songs (core-user/get-all-user-favourite-songs (:datomic-cmp req)
                                                                                user-id)
                       hot-songs (core-music/hot-songs (:datomic-cmp req))
+                      user-uploaded-songs (core-user/get-user-uploaded-songs (:datomic-cmp req)
+                                                                             user-id)
                       all-songs (-> #{}
                                     (into favourites-songs)
-                                    (into hot-songs))]
+                                    (into hot-songs)
+                                    (into user-uploaded-songs))]
                   (response/ok {:favourites-songs-ids (->> favourites-songs
                                                            (map :db/id)
                                                            (into #{}))
                                 :hot-songs-ids (->> hot-songs
                                                     (map :db/id)
                                                     (into #{}))
-                                :songs all-songs})))
+                                :songs all-songs
+                                :user-uploaded-songs (->> user-uploaded-songs
+                                                          (map :db/id)
+                                                          (into #{}))})))
 
            (PUT "/:song-id/track-play" [user-id :as req]
                 :operationId "trackSongPlay"

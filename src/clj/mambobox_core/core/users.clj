@@ -20,3 +20,6 @@
 
 (defn get-all-user-favourite-songs [datomic-cmp user-id]
   (protos/get-all-user-favourite-songs datomic-cmp user-id))
+
+(defn get-user-uploaded-songs [datomic-cmp user-id]
+  (protos/get-user-uploaded-songs datomic-cmp user-id))

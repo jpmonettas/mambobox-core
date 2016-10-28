@@ -260,7 +260,19 @@
      (->> (d/entity db user-id)
           :mb.user/favourite-songs
           (map :db/id)
-          (map (partial get-song db))))))
+          (map (partial get-song db)))))
+
+  (get-user-uploaded-songs [datomic-cmp user-id]
+    (let [db (d/db (:conn datomic-cmp))]
+      (->> (d/q '[:find ?sid
+                  :in $ ?uid
+                  :where
+                  [?sid :mb.song/file-id _ ?tx]
+                  [?tx :mb.tx/user ?uid]]
+            db
+            user-id)
+           (map first)
+           (map (partial get-song db))))))
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongTracker
