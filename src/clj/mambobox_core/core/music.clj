@@ -9,7 +9,9 @@
 
 
 (defn build-file-id [filename]
-  (str (gen-utils/normalize-entity-name-string filename) "_" (rand-int 100)))
+  (str (-> (gen-utils/normalize-entity-name-string filename)
+           (str/replace #" " "-"))
+       "_" (rand-int 100)))
 
 (s/def ::tempfile #(instance? java.io.File %))
 (s/def ::filename string?)

@@ -58,29 +58,6 @@
                                  (into #{})))))
                 all))))
 
-  (def all-artists
-    (with-open [r (java.io.PushbackReader. (clojure.java.io/reader "./doc/artists-list.edn"))]
-      (binding [*read-eval* false]
-        (read r))))
-
-  (count all-artists)
-
-  (def tx-data (doall
-                (map
-                 (fn [{:keys [artist-name albums]}]
-                   {:db/id (d/tempid :db.part/user)
-                    :mb.artist/name (gen-utils/normalize-entity-name-string artist-name)
-                    :mb.artist/albums (doall
-                                       (map
-                                        (fn [album]
-                                          {:db/id (d/tempid :db.part/user)
-                                           :mb.album/name (gen-utils/normalize-entity-name-string album)})
-                                        albums))})
-                 all-artists)))
   
-  @(mambobox-core.db.datomic-component/transact-reified
-    (user/db)
-    17592186045437
-    tx-data)
 
  )

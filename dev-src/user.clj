@@ -3,6 +3,7 @@
             [mambobox-core.main :refer [dev-system]]
             [datomic.api :as d]
             [environ.core :refer [env]]
+            [mambobox-core.generic-utils :as gen-utils]
             [clojure.pprint :as pp]
             [mambobox-core.protocols :as protos]
             [mambobox-core.utils :as utils]))
@@ -17,7 +18,25 @@
 
 (defn clear-db []
   (d/delete-database (env :datomic-uri))
-  (d/create-database (env :datomic-uri))) 
+  (d/create-database (env :datomic-uri)))
+
+(defn load-initial-artists-albums []
+  (let [all-artists (with-open [r (java.io.PushbackReader. (clojure.java.io/reader "./doc/artists-list.edn"))]
+          (binding [*read-eval* false]
+            (read r)))
+        tx-data (doall
+                 (map
+                  (fn [{:keys [artist-name albums]}]
+                    {:db/id (d/tempid :db.part/user)
+                     :mb.artist/name (gen-utils/normalize-entity-name-string artist-name)
+                     :mb.artist/albums (doall
+                                        (map
+                                         (fn [album]
+                                           {:db/id (d/tempid :db.part/user)
+                                            :mb.album/name (gen-utils/normalize-entity-name-string album)})
+                                         albums))})
+                  all-artists))]
+    @(mambobox-core.db.datomic-component/transact-reified (user/db) 17592186045437 tx-data)))
 
 (defn q [query]
   (pp/print-table

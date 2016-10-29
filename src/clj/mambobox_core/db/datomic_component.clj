@@ -352,7 +352,10 @@
   
   (get-all-artists [datomic-cmp]
     (let [db (d/db (:conn datomic-cmp))
-          artists-ids (map first (d/q '[:find ?aid :where [?aid :mb.artist/name]] db))]
+          artists-ids (map first (d/q '[:find ?aid
+                                        :where
+                                        [?aid :mb.artist/albums ?albid]
+                                        [?albid :mb.album/songs]] db))]
       (->> (d/pull-many db [:db/id :mb.artist/name] artists-ids)
            (into #{}))))
   
