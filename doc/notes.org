@@ -21,6 +21,7 @@
 
 *** TODO Fix notifications and progress when uploading
 
+*** TODO Retrieve tags with initial dump and add counters
 
 ** Server
 *** DONE Search songs service

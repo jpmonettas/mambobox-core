@@ -317,7 +317,8 @@
                 [(fulltext $ :mb.album/name ?q) [[_ ?aname]]]]
               (d/db (:conn datomic-cmp))
               (str q "*"))
-         (map first)))
+         (map first)
+         (take 5)))
 
   (search-artists [datomic-cmp q]
     (->> (d/q '[:find ?aname
@@ -326,7 +327,8 @@
                 [(fulltext $ :mb.artist/name ?q) [[_ ?aname]]]]
               (d/db (:conn datomic-cmp))
               (str q "*"))
-         (map first)))
+         (map first)
+         (take 5)))
   
   
   (hot-songs [datomic-cmp]

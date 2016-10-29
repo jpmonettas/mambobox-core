@@ -3,11 +3,11 @@
             [clojure.string :as str]))
 
 (defn normalize-entity-name-string [name-str]
-  (csk/->kebab-case name-str))
+  (str/replace (csk/->kebab-case name-str) #"-" " "))
 
 (defn denormalize-entity-name-string [norm-name-str]
   (as-> norm-name-str $
-      (str/split $ #"-") 
+      (str/split $ #" ") 
       (update $ 0 str/capitalize)
       (str/join " " $)))
 
