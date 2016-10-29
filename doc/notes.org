@@ -1,28 +1,32 @@
 * TODOs
 ** Mobile
-*** TODO Fix DB validation
-*** TODO Fix cljs-ajax get and replace the gets changed to posts
-*** TODO Fix notifications and progress when uploading
-*** TODO Add my songs tab
+*** DONE Fix DB validation
+*** DONE Add my songs tab
     - Add my songs to DB
     - Upload should return the song, so we can add it to the col
+*** DONE Artist -> Album -> Songs exploration
+*** TODO Tag exploration
+
+*** TODO Mark song as favourite
 *** TODO Song edition with autocomplete
 *** TODO When editing a song, update your db
-*** TODO Artist -> Album -> Songs exploration
-*** TODO Tag exploration
 *** TODO Some kind of playlist
 *** TODO Track plays on song play
 *** TODO Effects and coeffects for async storage
 *** TODO Register device only when not registered
 *** TODO Profile with nickname edition
-*** TODO Mark song as favourite
 *** TODO Add a splash when loading
 *** TODO Create a logo
+*** TODO Fix cljs-ajax get and replace the gets changed to posts
+
+*** TODO Fix notifications and progress when uploading
+
+
 ** Server
 *** DONE Search songs service
 *** DONE Autocomplete artist service
 *** DONE Autocomplete albums service
-*** DONE Get all artists
+*** DONE Add all artists to initial dump
 *** DONE Get albums for artist service
 *** DONE Get songs for album 
 *** DONE Get songs for tab

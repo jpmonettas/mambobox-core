@@ -351,7 +351,8 @@
   (get-all-artists [datomic-cmp]
     (let [db (d/db (:conn datomic-cmp))
           artists-ids (map first (d/q '[:find ?aid :where [?aid :mb.artist/name]] db))]
-      (d/pull-many db [:db/id :mb.artist/name] artists-ids)))
+      (->> (d/pull-many db [:db/id :mb.artist/name] artists-ids)
+           (into #{}))))
   
   (explore-artist [datomic-cmp artist-id]
     (let [db (d/db (:conn datomic-cmp))

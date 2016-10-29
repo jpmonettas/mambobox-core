@@ -18,7 +18,7 @@
                  :summary "Upload a song file"
                  :middleware [upload/wrap-multipart-params]
                  :multipart-params [image :- schema/Any]
-                 :responses {200 {:schema schema/Any :description "PSD song uploaded"}}
+                 :responses {200 {:schema schema/Any :description "Song uploaded"}}
                  (response/ok (core-music/upload-song (:datomic-cmp req) 
                                                       ;; This is called image because it's the
                                                       ;; name the file upload puts to it
@@ -46,9 +46,10 @@
                                                     (map :db/id)
                                                     (into #{}))
                                 :songs all-songs
-                                :user-uploaded-songs (->> user-uploaded-songs
-                                                          (map :db/id)
-                                                          (into #{}))})))
+                                :user-uploaded-songs-ids (->> user-uploaded-songs
+                                                              (map :db/id)
+                                                              (into #{}))
+                                :all-artists (core-music/get-all-artists (:datomic-cmp req))})))
 
            (PUT "/:song-id/track-play" [user-id :as req]
                 :operationId "trackSongPlay"
@@ -162,12 +163,6 @@
                                                          tag
                                                          (Integer/parseInt page))))
 
-           ;; TODO This should be a get when cljs-ajax works 
-           (POST "/all-artists" req
-                 :operationId "getAllArtists"
-                 :summary "Get all artists we have so far"
-
-                 (response/ok (core-music/get-all-artists (:datomic-cmp req))))
 
            ;; TODO This should be a get when cljs-ajax works 
            (POST "/explore-artist" req
