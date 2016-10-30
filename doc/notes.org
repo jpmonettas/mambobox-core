@@ -5,9 +5,8 @@
     - Add my songs to DB
     - Upload should return the song, so we can add it to the col
 *** DONE Artist -> Album -> Songs exploration
-*** TODO Tag exploration
-
-*** TODO Mark song as favourite
+*** DONE Tag exploration
+*** DONE Mark song as favourite
 *** TODO Song edition with autocomplete
 *** TODO When editing a song, update your db
 *** TODO Some kind of playlist
@@ -22,6 +21,7 @@
 *** TODO Fix notifications and progress when uploading
 
 *** TODO Retrieve tags with initial dump and add counters
+*** TODO i18n
 
 ** Server
 *** DONE Search songs service
@@ -32,7 +32,6 @@
 *** DONE Get songs for album 
 *** DONE Get songs for tab
 *** DONE Get my songs service and add it to initial dump
-
 *** TODO Add loggig
 *** TODO Create a tool for undo everything a user has done
 

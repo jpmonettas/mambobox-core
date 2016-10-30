@@ -50,12 +50,12 @@
                 (response/ok (core-users/set-user-favourite-song (:datomic-cmp req)
                                                                  user-id
                                                                  (Long/parseLong song-id))))
-           (PUT "/favourites/:song-id" [user-id :as req]
-                :operationId "unsetSongFavourite"
-                :summary "Unset a song as favourite for the user"
-                :responses {200 {:schema schema/Any :description "Song is no more favourite"}}
-                :path-params [song-id :- schema/Str]
+           (DELETE "/favourites/:song-id" [user-id :as req]
+                   :operationId "unsetSongFavourite"
+                   :summary "Unset a song as favourite for the user"
+                   :responses {200 {:schema schema/Any :description "Song is no more favourite"}}
+                   :path-params [song-id :- schema/Str]
 
-                (response/ok (core-users/unset-user-favourite-song (:datomic-cmp req)
-                                                                 user-id
-                                                                 (Long/parseLong song-id))))))
+                   (response/ok (core-users/unset-user-favourite-song (:datomic-cmp req)
+                                                                      user-id
+                                                                      (Long/parseLong song-id))))))
