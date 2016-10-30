@@ -288,9 +288,7 @@
 
   (search-songs-by-str [datomic-cmp qstr]
     (let [db (d/db (:conn datomic-cmp))
-          query (->> (str/split qstr #" ")
-                     (map #(str % "~"))
-                     (str/join " "))]
+          query (str qstr "~")]
       (->> (d/q '[:find ?sid ?score
                   :in $ % ?qstr
                   :where
@@ -308,7 +306,12 @@
                    [(fulltext $ :mb.album/name ?q) [[?album _ _ ?score]]]]]
                 query)
            (map (fn [[sid score]]
-                  (get-song db sid))))))
+                  (let [song (get-song db sid)]
+                    {:db/id (:db/id song)
+                     :mb.song/name (:mb.song/name song)
+                     :mb.artist/name (-> song :artist :mb.artist/name)
+                     :mb.album/name (-> song :album :mb.album/name)})))
+           (take 10))))
 
   (search-albums [datomic-cmp q]
     (->> (d/q '[:find ?aname

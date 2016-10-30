@@ -60,7 +60,8 @@
                                             user-id)
                 (response/ok))
 
-           (GET "/:song-id" req
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/:song-id/get" req
                 :operationId "getSongById"
                 :summary "Returns the song entity"
                 :path-params [song-id :- schema/Str]
