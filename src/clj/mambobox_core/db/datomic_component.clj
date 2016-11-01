@@ -1,6 +1,8 @@
 (ns mambobox-core.db.datomic-component
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
+            [clj-time.core :as time]
+            [clj-time.coerce :as timeco]
             [environ.core :refer [env]]
             [io.rkn.conformity :as c]
             [mambobox-core.generic-utils :as gen-utils]
@@ -285,6 +287,12 @@
                        user-id
                        [[:song/track-play song-id]])))
 
+(def gravity 1.8)
+(defn score-fn [sdate s-plays-count]
+  (let [days-since-creation (time/in-days (time/interval (timeco/from-date sdate)
+                                                         (time/now)))]
+    (/ (inc s-plays-count)
+       (Math/pow (inc days-since-creation) gravity))))
 
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongSearch
@@ -336,14 +344,21 @@
          (map first)
          (take 5)))
   
-  
+
   (hot-songs [datomic-cmp]
     (let [db (d/db (:conn datomic-cmp))]
-     (->> (d/q '[:find ?sid
-                 :where [?sid :mb.song/name]]
+     (->> (d/q '[:find ?sid ?score
+                 :where
+                 [?sid :mb.song/file-id _ ?tx]
+                 [?sid :mb.song/plays-count ?s-plays-count]
+                 [?tx :db/txInstant ?tx-time]
+                 [(mambobox-core.db.datomic-component/score-fn ?tx-time ?s-plays-count) ?score]]
                db)
-          (map first)
-          (map (partial get-song db)))))
+          (sort-by second >)
+          (take 20)
+          (map (fn [[id score]]
+                 (-> (get-song db id)
+                     (assoc :score score)))))))
 
   (explore-by-tag [datomic-cmp tag page]
     (let [db (d/db (:conn datomic-cmp))]

@@ -14,12 +14,14 @@
 (s/def :mb.song/album (s/keys :req [:db/id
                                     :mb.album/name]))
 
+(s/def :mb.song/score double?)
 (s/def :mb/song (s/keys :req [:db/id
                               :mb.song/name
                               :mb.song/file-id
                               :mb.song/url]
                         :req-un [:mb.song/artist
-                                 :mb.song/album]))
+                                 :mb.song/album]
+                        :opt-un [:mb.song/score]))
 
 (s/def :mb.album/name string?)
 (s/def :mb.album/songs (s/coll-of :mb/song))

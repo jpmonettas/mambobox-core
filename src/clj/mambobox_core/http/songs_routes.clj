@@ -43,8 +43,7 @@
                                                            (map :db/id)
                                                            (into #{}))
                                 :hot-songs-ids (->> hot-songs
-                                                    (map :db/id)
-                                                    (into #{}))
+                                                    (map :db/id))
                                 :songs all-songs
                                 :user-uploaded-songs-ids (->> user-uploaded-songs
                                                               (map :db/id)

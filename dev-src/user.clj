@@ -43,6 +43,12 @@
    (map #(zipmap (range) %)
         (d/q query (d/db (:conn (db)))))))
 
+(defn qhot []
+  (->> (protos/hot-songs (db))
+       (map (juxt :db/id :mb.song/name :score))
+       (map #(zipmap [:id :name :score] %))
+       (pp/print-table)))
+
 (defn qdevices []
   (q '[:find ?d ?dui ?un ?u
        :where

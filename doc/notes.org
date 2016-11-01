@@ -10,8 +10,9 @@
 *** DONE Query songs
 *** DONE Song edition with autocomplete
     - When editing a song, update the db
-*** TODO Track plays on song play
-*** TODO Do something for hot songs
+*** DONE Track plays on song play
+*** DONE Do something for hot songs
+*** TODO Reload initial dump
 *** TODO i18n
 *** TODO Garbage collector
 *** TODO Effects and coeffects for async storage

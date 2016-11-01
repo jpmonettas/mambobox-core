@@ -49,7 +49,8 @@
 
 
 (defn hot-songs [datomic-cmp]
-  (protos/hot-songs datomic-cmp))
+  (->> (protos/hot-songs datomic-cmp)
+       (map #(dissoc % :score))))
 
 (defn track-song-play [datomic-cmp song-id user-id]
   (protos/track-song-view datomic-cmp song-id user-id))
