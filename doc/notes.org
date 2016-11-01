@@ -7,8 +7,8 @@
 *** DONE Artist -> Album -> Songs exploration
 *** DONE Tag exploration
 *** DONE Mark song as favourite
-*** TODO Query songs
-*** TODO Song edition with autocomplete
+*** DONE Query songs
+*** DONE Song edition with autocomplete
     - When editing a song, update the db
 *** TODO Track plays on song play
 *** TODO Do something for hot songs

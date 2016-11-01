@@ -168,7 +168,9 @@
                                                 (update-song-artist-transaction (d/db (:conn datomic-cmp))
                                                                                 song-id
                                                                                 new-artist-name))]
-      (ensure-artist-alums-clean datomic-cmp)
+      ;; keep everything clean
+      ;; if we have this we can't use pre populated artists and albums
+      ;;(ensure-artist-alums-clean datomic-cmp)
       (get-song db-after song-id)))
   
   (update-song-album [datomic-cmp song-id new-album-name user-id]
@@ -178,7 +180,8 @@
                                                                                song-id
                                                                                new-album-name))]
       ;; keep everything clean
-      (ensure-artist-alums-clean datomic-cmp)
+      ;; if we have this we can't use pre populated artists and albums
+      ;;(ensure-artist-alums-clean datomic-cmp)
       (get-song db-after song-id)))
   
   (update-song-name [datomic-cmp song-id new-song-name user-id]
