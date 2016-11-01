@@ -22,6 +22,12 @@
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/many
      :db/doc "The artist/group albums"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.artist/default
+     :db/valueType :db.type/boolean
+     :db/cardinality :db.cardinality/one
+     :db/doc "If this is true, this is a default artist and should't be deleted"
      :db.install/_attribute :db.part/db}]
 
 
@@ -38,6 +44,12 @@
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/many
      :db/doc "The album songs"
+     :db.install/_attribute :db.part/db}
+    {:db/id #db/id[:db.part/db]
+     :db/ident :mb.album/default
+     :db/valueType :db.type/boolean
+     :db/cardinality :db.cardinality/one
+     :db/doc "If this is true, this is a default album and should't be deleted"
      :db.install/_attribute :db.part/db}]
    
    ;; Songs
@@ -139,7 +151,8 @@
            :db/fn #db/fn {:lang :clojure
                           :params [db id artist-name]
                           :code [{:db/id id
-                                  :mb.artist/name artist-name}]}}
+                                  :mb.artist/name artist-name
+                                  :mb.artist/default false}]}}
 
           ;; Retract an artist
           {:db/id #db/id[:db.part/user]
@@ -169,6 +182,7 @@
                                     (throw (ex-info (format "There is already an album called %s for artist %s" album-name artist-id)
                                                     {:type :duplicate-album-error}))
                                     [[:db/add album-id :mb.album/name album-name]
+                                     [:db/add album-id :mb.album/default false]
                                      [:db/add artist-id :mb.artist/albums album-id]]))}}
 
           ;; Retract an album

@@ -1,47 +1,62 @@
 * TODOs
-** Mobile
-*** DONE Fix DB validation
-*** DONE Add my songs tab
-    - Add my songs to DB
-    - Upload should return the song, so we can add it to the col
-*** DONE Artist -> Album -> Songs exploration
-*** DONE Tag exploration
-*** DONE Mark song as favourite
-*** DONE Query songs
-*** DONE Song edition with autocomplete
-    - When editing a song, update the db
-*** DONE Track plays on song play
-*** DONE Do something for hot songs
-*** TODO Reload initial dump
-*** TODO i18n
-*** TODO Garbage collector
-*** TODO Effects and coeffects for async storage
-*** TODO Register device only when not registered
-*** TODO Profile with nickname edition
+** Release 0.1
+*** Mobile [9/20]
+**** DONE Fix DB validation
+**** DONE Add my songs tab
+     - Add my songs to DB
+     - Upload should return the song, so we can add it to the col
+**** DONE Artist -> Album -> Songs exploration
+**** DONE Tag exploration
+**** DONE Mark song as favourite
+**** DONE Query songs
+**** DONE Song edition with autocomplete
+     - When editing a song, update the db
+**** DONE Track plays on song play
+**** DONE Do something for hot songs
+**** TODO Fix notifications and progress when uploading
+**** TODO Reload initial dump
+**** TODO i18n
+**** TODO Garbage collector
+**** TODO Remove tags
+**** TODO Effects and coeffects for async storage
+**** TODO Register device only when not registered
+**** TODO Try different screen sizes
+**** TODO Build release version
+**** TODO Create android dev account and upload as test
+**** TODO Add emails as testers
 
-*** TODO Some kind of playlist
-*** TODO Add a splash when loading
-*** TODO Create a logo
-*** TODO Fix cljs-ajax get and replace the gets changed to posts
+*** Server [8/12]
+**** DONE Search songs service
+**** DONE Autocomplete artist service
+**** DONE Autocomplete albums service
+**** DONE Add all artists to initial dump
+**** DONE Get albums for artist service
+**** DONE Get songs for album 
+**** DONE Get songs for tab
+**** DONE Get my songs service and add it to initial dump
+**** TODO Improve datomic searches for autocompletion
+**** TODO Add loggig
+**** TODO Set up droplet
+**** TODO Deploy
 
-*** TODO Fix notifications and progress when uploading
+** Release 1.0
+*** Mobile
+**** TODO Some kind of playlist
+**** TODO Add a splash when loading
+**** TODO Create a logo
 
-*** TODO Fix player slider to move song
-*** TODO Drawer with disabled events and trivia
-*** TODO Retrieve tags with initial dump and add counters
+**** TODO Fix cljs-ajax get and replace the gets changed to posts
+
+**** TODO Fix player slider to move song
+**** TODO Drawer with disabled events and trivia
+**** TODO Retrieve tags with initial dump and add counters
+**** TODO Profile with nickname edition
 
 
-** Server
-*** DONE Search songs service
-*** DONE Autocomplete artist service
-*** DONE Autocomplete albums service
-*** DONE Add all artists to initial dump
-*** DONE Get albums for artist service
-*** DONE Get songs for album 
-*** DONE Get songs for tab
-*** DONE Get my songs service and add it to initial dump
-*** TODO Add loggig
-*** TODO Create a tool for undo everything a user has done
+
+*** Server
+**** TODO Create a tool for undo everything a user has done
+
 
 * Roadmap/Ideas
 ** Geolocalized mambo events

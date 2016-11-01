@@ -39,10 +39,11 @@
 
 (defn remove-empty-ablums-transaction [db]
   (let [empty-albums (->> (d/q '[:find ?album
-                             :in $
-                             :where
-                             [?album :mb.album/name _]
-                             [(missing? $ ?album :mb.album/songs)]]
+                                 :in $
+                                 :where
+                                 [?album :mb.album/name _]
+                                 [?album :mb.album/default false]
+                                 [(missing? $ ?album :mb.album/songs)]]
                                db)
                           (map first))]
     (when-not (empty? empty-albums)
@@ -53,6 +54,7 @@
                                   :in $
                                   :where
                                   [?artist :mb.artist/name _]
+                                  [?artist :mb.artist/default false]
                                   [(missing? $ ?artist :mb.artist/albums)]]
                                 db)
                            (map first))]
@@ -146,7 +148,7 @@
                     :mb.album/name (:mb.album/name song-album)}
             :mb.song/url (str "/public-files/" (:mb.song/file-id song))})))
 
-(defn ensure-artist-alums-clean [datomic-cmp]
+(defn ensure-artist-albums-clean [datomic-cmp]
   (when-let [rm-al-tx (remove-empty-ablums-transaction (d/db (:conn datomic-cmp)))]
     (let [{db-after-albums-clean :db-after} @(d/transact (:conn datomic-cmp) rm-al-tx)]
       (when-let [rm-ar-tx (remove-empty-artists-transaction db-after-albums-clean)]
@@ -171,8 +173,7 @@
                                                                                 song-id
                                                                                 new-artist-name))]
       ;; keep everything clean
-      ;; if we have this we can't use pre populated artists and albums
-      ;;(ensure-artist-alums-clean datomic-cmp)
+      (ensure-artist-albums-clean datomic-cmp)
       (get-song db-after song-id)))
   
   (update-song-album [datomic-cmp song-id new-album-name user-id]
@@ -183,7 +184,7 @@
                                                                                new-album-name))]
       ;; keep everything clean
       ;; if we have this we can't use pre populated artists and albums
-      ;;(ensure-artist-alums-clean datomic-cmp)
+      (ensure-artist-albums-clean datomic-cmp)
       (get-song db-after song-id)))
   
   (update-song-name [datomic-cmp song-id new-song-name user-id]
