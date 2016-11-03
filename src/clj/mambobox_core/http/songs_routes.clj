@@ -39,18 +39,19 @@
                 :summary "Returns the songs initial dump, hot, favourites, etc"
                 (let [favourites-songs (core-user/get-all-user-favourite-songs (:datomic-cmp req)
                                                                                user-id)
-                      hot-songs (core-music/hot-songs (:datomic-cmp req))
+                      hot-songs-w-scores (core-music/hot-songs (:datomic-cmp req))
                       user-uploaded-songs (core-user/get-user-uploaded-songs (:datomic-cmp req)
                                                                              user-id)
                       all-songs (-> #{}
                                     (into favourites-songs)
-                                    (into hot-songs)
+                                    (into (map first hot-songs-w-scores))
                                     (into user-uploaded-songs))]
                   (response/ok {:favourites-songs-ids (->> favourites-songs
                                                            (map :db/id)
                                                            (into #{}))
-                                :hot-songs-ids (->> hot-songs
-                                                    (map :db/id))
+                                :hot-songs-ids (->> hot-songs-w-scores
+                                                    (map (fn [[s score]]
+                                                           [(:db/id s) score])))
                                 :songs all-songs
                                 :user-uploaded-songs-ids (->> user-uploaded-songs
                                                               (map :db/id)

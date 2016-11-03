@@ -358,8 +358,7 @@
           (sort-by second >)
           (take 20)
           (map (fn [[id score]]
-                 (-> (get-song db id)
-                     (assoc :score score)))))))
+                 [(get-song db id) score])))))
 
   (explore-by-tag [datomic-cmp tag page]
     (let [db (d/db (:conn datomic-cmp))]

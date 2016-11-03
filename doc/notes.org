@@ -24,9 +24,6 @@
 **** TODO Create android dev account and upload as test
 **** TODO Add emails as testers
 
-**** TODO Effects and coeffects for async storage ?????
-**** TODO Register device only when not registered ?????
-
 *** Server [8/12]
 **** DONE Search songs service
 **** DONE Autocomplete artist service
@@ -36,7 +33,7 @@
 **** DONE Get songs for album 
 **** DONE Get songs for tab
 **** DONE Get my songs service and add it to initial dump
-**** TODO Add loggig
+**** TODO Add logging
 **** TODO Set up droplet
 **** TODO Deploy
 
@@ -51,6 +48,8 @@
 **** TODO Drawer with disabled events and trivia
 **** TODO Retrieve tags with initial dump and add counters
 **** TODO Profile with nickname edition
+**** TODO Effects and coeffects for async storage ?????
+**** TODO Register device only when not registered ?????
 
 
 
