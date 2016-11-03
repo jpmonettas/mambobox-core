@@ -18,13 +18,20 @@
                  :summary "Upload a song file"
                  :middleware [upload/wrap-multipart-params]
                  :multipart-params [image :- schema/Any]
-                 :responses {200 {:schema schema/Any :description "Song uploaded"}}
-                 (response/ok (core-music/upload-song (:datomic-cmp req) 
-                                                      ;; This is called image because it's the
-                                                      ;; name the file upload puts to it
-                                                      ;; have to change that
-                                                      image
-                                                      user-id)))
+                 :responses {200 {:schema schema/Any :description "Song uploaded"}
+                             409 {:schema schema/Str :description "Song already exist on the system"}}
+                 (try
+                  (response/ok (core-music/upload-song (:datomic-cmp req) 
+                                                       ;; This is called image because it's the
+                                                       ;; name the file upload puts to it
+                                                       ;; have to change that
+                                                       image
+                                                       user-id))
+                  (catch Exception e
+                    (case (:type (ex-data e))
+                      :duplicate-song-error (response/conflict (.getMessage e))
+                      
+                      (throw e)))))
            
            ;; TODO This should be a get when cljs-ajax works 
            (POST "/initial-dump" [user-id :as req]
@@ -50,6 +57,13 @@
                                                               (into #{}))
                                 :all-artists (core-music/get-all-artists (:datomic-cmp req))})))
 
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/hot" [user-id :as req]
+                 :operationId "getHotSongs"
+                 :summary "Retrieves updated hot songs list"
+
+                 (response/ok (core-music/hot-songs (:datomic-cmp req))))
+           
            (PUT "/:song-id/track-play" [user-id :as req]
                 :operationId "trackSongPlay"
                 :summary "Tracks a song play"
@@ -172,6 +186,13 @@
 
                  (response/ok (core-music/explore-artist (:datomic-cmp req)
                                                          (Long/parseLong artist-id))))
+
+           ;; TODO This should be a get when cljs-ajax works 
+           (POST "/all-artists" req
+                 :operationId "getAllArtists"
+                 :summary "Get full list of artists"
+                 
+                 (response/ok (core-music/get-all-artists (:datomic-cmp req))))
 
            ;; TODO This should be a get when cljs-ajax works 
            (POST "/explore-album" req

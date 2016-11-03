@@ -1,6 +1,6 @@
 * TODOs
 ** Release 0.1
-*** Mobile [9/20]
+*** Mobile [14/20]
 **** DONE Fix DB validation
 **** DONE Add my songs tab
      - Add my songs to DB
@@ -13,17 +13,19 @@
      - When editing a song, update the db
 **** DONE Track plays on song play
 **** DONE Do something for hot songs
-**** TODO Fix notifications and progress when uploading
-**** TODO Reload initial dump
-**** TODO i18n
+**** DONE Fix notifications and progress when uploading
+**** DONE Remove tags
+**** DONE i18n
+**** DONE Update hot songs and artists
 **** TODO Garbage collector
-**** TODO Remove tags
-**** TODO Effects and coeffects for async storage
-**** TODO Register device only when not registered
-**** TODO Try different screen sizes
+
+**** DONE Try different screen sizes
 **** TODO Build release version
 **** TODO Create android dev account and upload as test
 **** TODO Add emails as testers
+
+**** TODO Effects and coeffects for async storage ?????
+**** TODO Register device only when not registered ?????
 
 *** Server [8/12]
 **** DONE Search songs service
@@ -34,19 +36,17 @@
 **** DONE Get songs for album 
 **** DONE Get songs for tab
 **** DONE Get my songs service and add it to initial dump
-**** TODO Improve datomic searches for autocompletion
 **** TODO Add loggig
 **** TODO Set up droplet
 **** TODO Deploy
 
 ** Release 1.0
 *** Mobile
+**** TODO Throw an error if someone uploads same song (name, md5)
 **** TODO Some kind of playlist
 **** TODO Add a splash when loading
 **** TODO Create a logo
-
 **** TODO Fix cljs-ajax get and replace the gets changed to posts
-
 **** TODO Fix player slider to move song
 **** TODO Drawer with disabled events and trivia
 **** TODO Retrieve tags with initial dump and add counters
@@ -56,6 +56,7 @@
 
 *** Server
 **** TODO Create a tool for undo everything a user has done
+**** TODO Improve datomic searches for autocompletion
 
 
 * Roadmap/Ideas
