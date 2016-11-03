@@ -6,7 +6,8 @@
             [mambobox-core.generic-utils :as gen-utils]
             [clojure.pprint :as pp]
             [mambobox-core.protocols :as protos]
-            [mambobox-core.utils :as utils]))
+            [mambobox-core.utils :as utils]
+            [com.walmartlabs.datascope :as ds]))
 
 (set-init! #'dev-system)
 
@@ -20,25 +21,18 @@
   (d/delete-database (env :datomic-uri))
   (d/create-database (env :datomic-uri)))
 
-(defn load-initial-artists-albums []
-  (let [all-artists (with-open [r (java.io.PushbackReader. (clojure.java.io/reader "./doc/artists-list.edn"))]
-          (binding [*read-eval* false]
-            (read r)))
-        tx-data (doall
-                 (map
-                  (fn [{:keys [artist-name albums]}]
-                    {:db/id (d/tempid :db.part/user)
-                     :mb.artist/name (gen-utils/normalize-entity-name-string artist-name)
-                     :mb.artist/default true
-                     :mb.artist/albums (doall
-                                        (map
-                                         (fn [album]
-                                           {:db/id (d/tempid :db.part/user)
-                                            :mb.album/name (gen-utils/normalize-entity-name-string album)
-                                            :mb.album/default true})
-                                         albums))})
-                  all-artists))]
-    @(mambobox-core.db.datomic-component/transact-reified (user/db) 17592186045437 tx-data)))
+(defn view-artists [db]
+  (->> (d/q '[:find ?artist-id
+              :where [?artist-id :mb.artist/name]]
+            db)
+       (map first)
+       (d/pull-many db [:mb.artist/name
+                        :db/id
+                        {:mb.artist/albums [:mb.album/name
+                                            :db/id
+                                            {:mb.album/songs [:mb.song/name
+                                                              :db/id]}]}])
+       (ds/view)))
 
 (defn q [query]
   (pp/print-table
@@ -47,8 +41,10 @@
 
 (defn qhot []
   (->> (protos/hot-songs (db))
-       (map (juxt :db/id :mb.song/name :score))
-       (map #(zipmap [:id :name :score] %))
+       (map (fn [[s score]]
+              {:id (:db/id s)
+               :name (:mb.song/name s)
+               :score score})) 
        (pp/print-table)))
 
 (defn qdevices []
@@ -72,11 +68,9 @@
        [?u :mb.user/nick ?unick]]))
 
 (defn view-artist []
-  (utils/view-artists (d/db (:conn (db)))))
+  (view-artists (d/db (:conn (db)))))
 
 (defn e [id]
   (pp/pprint (d/touch (d/entity (d/db (:conn (db))) id))))
 
-(comment
-  
-  )
+

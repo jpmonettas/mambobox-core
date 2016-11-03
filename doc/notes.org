@@ -1,6 +1,6 @@
 * TODOs
 ** Release 0.1
-*** Mobile [14/20]
+*** Mobile [15/18]
 **** DONE Fix DB validation
 **** DONE Add my songs tab
      - Add my songs to DB
@@ -17,14 +17,13 @@
 **** DONE Remove tags
 **** DONE i18n
 **** DONE Update hot songs and artists
-**** TODO Garbage collector
-
+**** DONE Garbage collector
 **** DONE Try different screen sizes
 **** TODO Build release version
 **** TODO Create android dev account and upload as test
 **** TODO Add emails as testers
 
-*** Server [8/12]
+*** Server [10/12]
 **** DONE Search songs service
 **** DONE Autocomplete artist service
 **** DONE Autocomplete albums service
@@ -34,8 +33,9 @@
 **** DONE Get songs for tab
 **** DONE Get my songs service and add it to initial dump
 **** TODO Add logging
-**** TODO Set up droplet
-**** TODO Deploy
+**** TODO Add api-key validation
+**** DONE Set up droplet
+**** DONE Deploy
 
 ** Release 1.0
 *** Mobile

@@ -25,10 +25,13 @@
   component/Lifecycle
   
   (start [component]
+    (println "Starting datomic cmp, connecting to " datomic-uri)
     (let [db (d/create-database datomic-uri)
           conn (d/connect datomic-uri)
-          schema-norms-map (c/read-resource "schemas/mambobox-schema.edn")]
+          schema-norms-map (c/read-resource "schemas/mambobox-schema.edn")
+          default-artist-data (c/read-resource "seed-data/artists-list.edn")]
       (c/ensure-conforms conn schema-norms-map [:mambobox/schema :mambobox/db-fns])
+      (c/ensure-conforms conn default-artist-data [:mambobox/default-artists])
       (assoc component :conn conn)))
   (stop [component]
     (when conn (d/release conn))
