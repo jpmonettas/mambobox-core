@@ -298,12 +298,16 @@
     (/ (inc s-plays-count)
        (Math/pow (inc days-since-creation) gravity))))
 
+(defn fuzzy-query-terms [q]
+  (->> (str/split q #" ")
+       (map #(str % "~"))
+       (reduce str)))
+
 (extend-type MamboboxDatomicComponent
   mambo-protocols/SongSearch
 
   (search-songs-by-str [datomic-cmp qstr]
-    (let [db (d/db (:conn datomic-cmp))
-          query (str qstr "~")]
+    (let [db (d/db (:conn datomic-cmp))]
       (->> (d/q '[:find ?sid ?score
                   :in $ % ?qstr
                   :where
@@ -319,7 +323,7 @@
                   [(search ?q ?sid ?score)
                    [?album :mb.album/songs ?sid]
                    [(fulltext $ :mb.album/name ?q) [[?album _ _ ?score]]]]]
-                query)
+                (fuzzy-query-terms qstr))
            (map (fn [[sid score]]
                   (let [song (get-song db sid)]
                     {:db/id (:db/id song)
@@ -328,23 +332,26 @@
                      :mb.album/name (-> song :album :mb.album/name)})))
            (take 10))))
 
+  
   (search-albums [datomic-cmp q]
-    (->> (d/q '[:find ?aname
+    (->> (d/q '[:find ?aname ?score
                 :in $ ?q
                 :where
-                [(fulltext $ :mb.album/name ?q) [[_ ?aname]]]]
+                [(fulltext $ :mb.album/name ?q) [[_ ?aname _ ?score]]]]
               (d/db (:conn datomic-cmp))
-              (str q "*"))
+              (fuzzy-query-terms q))
+         (sort-by second >)
          (map first)
          (take 5)))
 
   (search-artists [datomic-cmp q]
-    (->> (d/q '[:find ?aname
+    (->> (d/q '[:find ?aname ?score
                 :in $ ?q
                 :where
-                [(fulltext $ :mb.artist/name ?q) [[_ ?aname]]]]
+                [(fulltext $ :mb.artist/name ?q) [[_ ?aname _ ?score]]]]
               (d/db (:conn datomic-cmp))
-              (str q "*"))
+              (fuzzy-query-terms q))
+         (sort-by second >)
          (map first)
          (take 5)))
   
