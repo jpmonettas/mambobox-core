@@ -1,6 +1,6 @@
 * TODOs
 ** Release 0.1
-*** Mobile [15/18]
+*** Mobile [19/19]
 **** DONE Fix DB validation
 **** DONE Add my songs tab
      - Add my songs to DB
@@ -19,11 +19,12 @@
 **** DONE Update hot songs and artists
 **** DONE Garbage collector
 **** DONE Try different screen sizes
-**** TODO Build release version
-**** TODO Create android dev account and upload as test
-**** TODO Add emails as testers
+**** DONE Build release version
+**** DONE Create android dev account and upload as test
+**** DONE Add emails as testers
 
-*** Server [10/12]
+**** DONE Play queues
+*** Server [10/13]
 **** DONE Search songs service
 **** DONE Autocomplete artist service
 **** DONE Autocomplete albums service
@@ -32,6 +33,7 @@
 **** DONE Get songs for album 
 **** DONE Get songs for tab
 **** DONE Get my songs service and add it to initial dump
+**** TODO Edit id3info and bulk upload
 **** TODO Add logging
 **** TODO Add api-key validation
 **** DONE Set up droplet
@@ -40,13 +42,14 @@
 ** Release 1.0
 *** Mobile
 **** TODO Throw an error if someone uploads same song (name, md5)
-**** TODO Some kind of playlist
 **** TODO Add a splash when loading
 **** TODO Create a logo
 **** TODO Fix cljs-ajax get and replace the gets changed to posts
 **** TODO Fix player slider to move song
-**** TODO Drawer with disabled events and trivia
+**** TODO Drawer with disabled events and enable trivias
+**** TODO Entire trivia system
 **** TODO Retrieve tags with initial dump and add counters
+     Instead of hardcoded tags retrieve them from server with counters
 **** TODO Profile with nickname edition
 **** TODO Effects and coeffects for async storage ?????
 **** TODO Register device only when not registered ?????

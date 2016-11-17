@@ -47,15 +47,13 @@
                                     (into (map first hot-songs-w-scores))
                                     (into user-uploaded-songs))]
                   (response/ok {:favourites-songs-ids (->> favourites-songs
-                                                           (map :db/id)
-                                                           (into #{}))
+                                                           (map :db/id))
                                 :hot-songs-ids (->> hot-songs-w-scores
                                                     (map (fn [[s score]]
                                                            [(:db/id s) score])))
                                 :songs all-songs
                                 :user-uploaded-songs-ids (->> user-uploaded-songs
-                                                              (map :db/id)
-                                                              (into #{}))
+                                                              (map :db/id))
                                 :all-artists (core-music/get-all-artists (:datomic-cmp req))})))
 
            ;; TODO This should be a get when cljs-ajax works 
